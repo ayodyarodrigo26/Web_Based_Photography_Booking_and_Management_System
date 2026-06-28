@@ -1,4 +1,4 @@
-# 📸 Web-Based Photography Booking and Management System
+<h1 align="center">📸 Web-Based Photography Booking and Management System</h1>
 
 > A comprehensive web-based platform developed to streamline photography service booking, customer management, payment processing, marketing campaigns, and photographer scheduling through an integrated management system.
 
