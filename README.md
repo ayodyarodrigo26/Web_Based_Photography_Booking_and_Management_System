@@ -2,6 +2,10 @@
 
 > A comprehensive web-based platform developed to streamline photography service booking, customer management, payment processing, marketing campaigns, and photographer scheduling through an integrated management system.
 
+<p align="center">
+  <img src="screenshots/img_12.png" width="100%">
+</p>
+
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-brightgreen)
 ![Spring Security](https://img.shields.io/badge/Spring_Security-6-success)
@@ -164,7 +168,70 @@ Database
 * Feedback Management
 
 ---
+# 🖼️ System Screenshots
 
+## Home Page
+
+<p align="center">
+  <img src="screenshots/img.png" width="100%">
+</p>
+
+---
+## Customer Registration
+
+<p align="center">
+  <img src="screenshots/img_1.png" width="100%">
+</p>
+
+<p align="center">
+  <img src="screenshots/img_2.png" width="100%">
+</p>
+
+---
+
+## Photography Packages
+
+<p align="center">
+  <img src="screenshots/img_4.png" width="100%">
+</p>
+
+---
+
+## Shopping Cart
+
+<p align="center">
+  <img src="screenshots/img_5.png" width="100%">
+</p>
+
+---
+
+## Marketing Management
+
+<p align="center">
+  <img src="screenshots/img_6.png" width="100%">
+</p>
+
+<p align="center">
+  <img src="screenshots/img_7.png" width="100%">
+</p>
+
+---
+
+## Booking Management
+
+<p align="center">
+  <img src="screenshots/img_9.png" width="100%">
+</p>
+
+---
+
+## Payment Management
+
+<p align="center">
+  <img src="screenshots/img_10.png" width="100%">
+</p>
+
+---
 # ⭐ Special Business Features
 
 ## Loyalty Discount System
