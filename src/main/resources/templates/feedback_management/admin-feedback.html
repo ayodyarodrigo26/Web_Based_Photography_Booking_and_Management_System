@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Manage Feedback — Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Exact palette from the screenshot */
+            --burgundy:    #8c4a52;
+            --burgundy2:   #9e5860;
+            --burgundy3:   #7a3a42;
+
+            --cream:       #f4f0ee;
+            --cream2:      #faf8f6;
+            --cream3:      #eeebe8;
+
+            --beige:       #d8cfc6;
+            --beige-mid:   #c4b8ad;
+            --beige-dark:  #a89890;
+
+            --ink:         #221418;
+            --ink-mid:     #4a3035;
+            --ink-soft:    #8a6870;
+            --muted:       rgba(28,16,8,0.42);
+
+            --ok:          #2e6b45;
+            --ok-bg:       rgba(46,107,69,0.09);
+            --ok-border:   rgba(46,107,69,0.24);
+
+            --danger:      #9a3030;
+            --danger-bg:   rgba(154,48,48,0.09);
+            --danger-border: rgba(154,48,48,0.24);
+
+            --shadow-sm:  0 2px 10px rgba(140,74,82,0.07);
+            --shadow-md:  0 12px 40px rgba(140,74,82,0.10), 0 3px 12px rgba(140,74,82,0.06);
+            --shadow-card: 0 6px 24px rgba(140,74,82,0.08), 0 1px 6px rgba(140,74,82,0.05);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--cream);
+            background-image:
+                    radial-gradient(ellipse 65% 50% at 0%   0%,   rgba(140,74,82,0.09) 0%, transparent 55%),
+                    radial-gradient(ellipse 55% 45% at 100% 100%, rgba(140,74,82,0.06) 0%, transparent 55%),
+                    radial-gradient(ellipse 50% 55% at 95%  5%,   rgba(216,207,198,0.40) 0%, transparent 50%);
+            min-height: 100vh;
+            padding: 0 0 60px;
+            color: var(--ink);
+        }
+
+        /* grain */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0;
+        }
+
+        .wrap { max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; padding: 0 24px; }
+
+        /* ── Top eyebrow strip — matches the screenshot ── */
+        .top-strip {
+            text-align: center;
+            padding: 18px 24px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 0;
+        }
+        .top-strip::before, .top-strip::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--beige), transparent);
+        }
+
+        /* ── Header card — deep burgundy, matches screenshot exactly ── */
+        .header-card {
+            background: linear-gradient(135deg, var(--burgundy3) 0%, var(--burgundy) 50%, var(--burgundy2) 100%);
+            border-radius: 16px;
+            margin: 0 24px 24px;
+            padding: 32px 38px 30px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            animation: fadeUp 0.5s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* decorative circles — exactly like the screenshot */
+        .header-card::before {
+            content: '';
+            position: absolute; top: -70px; right: -70px;
+            width: 260px; height: 260px; border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+        }
+        .header-card::after {
+            content: '';
+            position: absolute; bottom: -55px; left: 30%;
+            width: 200px; height: 200px; border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .header-card .overline {
+            position: relative; z-index: 1;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.58);
+            margin-bottom: 12px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .header-card .overline::before {
+            content: '';
+            width: 26px; height: 1px;
+            background: rgba(255,255,255,0.44);
+        }
+
+        .header-card h1 {
+            position: relative; z-index: 1;
+            font-family: 'Playfair Display', serif;
+            font-size: 38px; font-weight: 700;
+            color: #fff; line-height: 1.05;
+        }
+        .header-card h1 em {
+            font-style: italic;
+            color: rgba(255,255,255,0.78);
+        }
+
+        .header-card p {
+            position: relative; z-index: 1;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.56);
+            font-size: 13px; font-weight: 300;
+        }
+
+        /* ── Main content area — cream like screenshot body ── */
+        .main-card {
+            background: var(--cream2);
+            border: 1px solid var(--beige);
+            border-radius: 16px;
+            margin: 0 24px;
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            animation: fadeUp 0.55s 0.1s ease both;
+        }
+
+        /* ── Stats section — inside the main card ── */
+        .stats-section {
+            padding: 24px 28px 0;
+        }
+
+        .section-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: var(--beige-dark);
+            margin-bottom: 14px;
+            display: flex; align-items: center; gap: 12px;
+        }
+        .section-label::before { content: ''; height: 1px; width: 22px; background: var(--beige-mid); }
+        .section-label::after  { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--beige), transparent); }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+        @media (max-width: 700px) { .stats { grid-template-columns: 1fr; } }
+
+        .stat {
+            background: rgba(255,255,255,0.75);
+            border: 1px solid var(--beige);
+            border-radius: 12px;
+            padding: 16px 18px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat::after {
+            content: '';
+            position: absolute; left: 0; top: 0; bottom: 0;
+            width: 3px; border-radius: 12px 0 0 12px;
+        }
+        .stat:nth-child(1)::after { background: var(--burgundy); }
+        .stat:nth-child(2)::after { background: var(--burgundy2); }
+        .stat:nth-child(3)::after { background: var(--beige-dark); }
+
+        .stat .lbl {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+        }
+        .stat .val {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px; font-weight: 700;
+            color: var(--burgundy);
+            line-height: 1.1; margin-top: 3px;
+        }
+        .stat:nth-child(2) .val { color: var(--burgundy2); }
+        .stat:nth-child(3) .val { color: var(--beige-dark); }
+        .stat .sub { font-size: 11.5px; color: var(--ink-soft); margin-top: 3px; }
+
+        /* ── Table section ── */
+        .table-section { padding: 0 28px 28px; }
+
+        .table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 0 14px;
+            border-bottom: 1px solid var(--beige);
+            margin-bottom: 0;
+        }
+        .toolbar-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: var(--burgundy);
+            display: flex; align-items: center; gap: 8px;
+        }
+        .toolbar-title::before {
+            content: '';
+            width: 7px; height: 7px; border-radius: 50%;
+            background: var(--burgundy);
+        }
+        .toolbar-count {
+            font-size: 12px; color: var(--ink-soft);
+        }
+
+        /* ── Table ── */
+        .table-wrap {
+            border: 1px solid var(--beige);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-top: 16px;
+        }
+
+        table { border-collapse: collapse; width: 100%; }
+
+        thead tr {
+            background: linear-gradient(135deg, var(--burgundy3) 0%, var(--burgundy) 60%, var(--burgundy2) 100%);
+        }
+        th {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.70);
+            padding: 14px 18px;
+            text-align: left;
+            white-space: nowrap;
+            font-weight: 400;
+        }
+
+        td {
+            padding: 15px 18px;
+            border-bottom: 1px solid rgba(216,207,198,0.55);
+            vertical-align: top;
+            font-size: 13.5px;
+            color: var(--ink);
+            background: rgba(255,255,255,0.50);
+        }
+        tbody tr { transition: background 0.15s; }
+        tbody tr:hover td { background: rgba(242,237,232,0.80); }
+        tbody tr:last-child td { border-bottom: none; }
+
+        /* Stars — muted rose like screenshot */
+        .stars { display: inline-flex; gap: 2px; }
+        .stars span {
+            color: var(--beige);
+            font-size: 15px;
+            transition: color 0.12s;
+        }
+        .stars .on {
+            color: var(--burgundy);
+            text-shadow: 0 1px 6px rgba(140,74,82,0.22);
+        }
+        .rating-num {
+            margin-top: 5px; font-size: 11px;
+            color: var(--muted);
+            font-family: 'Cormorant Garamond', serif;
+            letter-spacing: 1px;
+        }
+
+        /* Comment */
+        .comment {
+            color: var(--ink-mid);
+            line-height: 1.6;
+            max-width: 460px;
+            font-size: 13.5px;
+        }
+
+        /* Email */
+        .email-cell {
+            font-size: 12.5px; color: var(--ink-soft);
+            max-width: 170px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+
+        /* Pills */
+        .pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 12px; border-radius: 999px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 2px;
+            text-transform: uppercase;
+            border: 1px solid; user-select: none; white-space: nowrap;
+        }
+        .pill::before {
+            content: '';
+            width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+        }
+        .pill-ok {
+            background: var(--ok-bg); color: var(--ok);
+            border-color: var(--ok-border);
+        }
+        .pill-ok::before { background: var(--ok); }
+        .pill-pend {
+            background: rgba(140,74,82,0.06); color: var(--burgundy);
+            border-color: rgba(140,74,82,0.16);
+        }
+        .pill-pend::before { background: var(--burgundy2); }
+
+        /* Date */
+        .date-cell { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+        /* Buttons — matches screenshot exactly */
+        .actions { display: flex; gap: 7px; justify-content: flex-end; flex-wrap: wrap; }
+
+        .btn {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px; letter-spacing: 2.5px;
+            text-transform: uppercase;
+            padding: 8px 14px;
+            border-radius: 9px; border: 1px solid;
+            text-decoration: none;
+            display: inline-flex; align-items: center; gap: 7px;
+            white-space: nowrap;
+            transition: transform 0.13s, box-shadow 0.13s;
+            cursor: pointer;
+        }
+        .btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); }
+
+        .btn-approve {
+            border-color: var(--ok-border);
+            background: var(--ok-bg); color: var(--ok);
+        }
+        .btn-submit {
+            color: #fff;
+            background: linear-gradient(135deg, var(--burgundy3), var(--burgundy));
+            border-color: rgba(0,0,0,0.10);
+            box-shadow: 0 6px 18px rgba(140,74,82,0.16);
+        }
+        .btn-submit:hover {
+            box-shadow: 0 10px 26px rgba(140,74,82,0.22);
+        }
+        .btn-ghost {
+            color: var(--ink-mid);
+            background: rgba(255,255,255,0.75);
+            border-color: var(--beige);
+        }
+        .btn-delete {
+            border-color: var(--danger-border);
+            background: var(--danger-bg); color: var(--danger);
+        }
+
+        /* Empty */
+        .empty {
+            text-align: center; padding: 64px 24px; color: var(--ink-soft);
+        }
+        .empty .icon { font-size: 44px; opacity: 0.28; }
+        .empty .t {
+            font-family: 'Playfair Display', serif;
+            font-size: 26px; font-weight: 700;
+            margin-top: 12px; color: var(--ink-mid);
+        }
+        .empty .s { font-size: 13px; opacity: 0.80; margin-top: 6px; }
+
+        /* Stamp — matches screenshot bottom */
+        .stamp {
+            text-align: center; margin-top: 22px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px; letter-spacing: 5px;
+            color: rgba(140,74,82,0.20);
+        }
+
+        @media (max-width: 860px) {
+            th:nth-child(3), td:nth-child(3) { display: none; }
+            .comment { max-width: 280px; }
+            .header-card h1 { font-size: 28px; }
+        }
+        @media (max-width: 640px) {
+            th:nth-child(5), td:nth-child(5) { display: none; }
+            .actions { justify-content: flex-start; }
+            .header-card, .main-card { margin-left: 12px; margin-right: 12px; }
+        }
+
+        .btn-dashboard {
+            background: #f8f6f2;
+            color: #3b2a1a;
+            padding: 10px 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #e0d6c5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: 0.2s;
+        }
+
+        .btn-dashboard:hover {
+            background: #eee7dc;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Top strip — matches screenshot -->
+<div class="top-strip">
+    CISRA Studio &nbsp;·&nbsp; Admin Panel
+</div>
+
+<!-- Hero header — matches screenshot's burgundy header exactly -->
+<div class="header-card">
+    <div class="overline">Feedback Management</div>
+    <h1>Manage <em>Customer</em><br>Feedback</h1>
+    <p>Approve or remove submissions before they appear in the customer portal.</p>
+    <div style="position:absolute; top:20px; right:30px;">
+        <a href="/admin/management-dashboard" class="btn-dashboard">
+            ← Dashboard
+        </a>
+    </div>
+</div>
+
+
+<!-- Main cream body card — matches screenshot body -->
+<div class="main-card">
+
+    <div class="stats-section">
+        <div class="section-label">Overview</div>
+        <div class="stats">
+            <div class="stat">
+                <div class="lbl">Total</div>
+                <div class="val" th:text="${feedbackList != null ? feedbackList.size() : 0}">0</div>
+                <div class="sub">All submitted feedback</div>
+            </div>
+            <div class="stat">
+                <div class="lbl">Approved</div>
+                <div class="val" th:text="${feedbackList != null ? feedbackList.?[approved == true].size() : 0}">0</div>
+                <div class="sub">Visible to customers</div>
+            </div>
+            <div class="stat">
+                <div class="lbl">Pending</div>
+                <div class="val" th:text="${feedbackList != null ? feedbackList.?[approved == false].size() : 0}">0</div>
+                <div class="sub">Awaiting review</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="table-section">
+        <div class="table-toolbar">
+            <div class="toolbar-title">All Submissions</div>
+            <div class="toolbar-count" th:text="${feedbackList != null ? feedbackList.size() + ' records' : '0 records'}">0 records</div>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Rating</th>
+                    <th>Comment</th>
+                    <th>Customer</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th style="text-align:right;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="f : ${feedbackList}">
+                    <td>
+                        <div class="stars">
+                            <span th:classappend="${f.rating >= 1} ? 'on' : ''">★</span>
+                            <span th:classappend="${f.rating >= 2} ? 'on' : ''">★</span>
+                            <span th:classappend="${f.rating >= 3} ? 'on' : ''">★</span>
+                            <span th:classappend="${f.rating >= 4} ? 'on' : ''">★</span>
+                            <span th:classappend="${f.rating >= 5} ? 'on' : ''">★</span>
+                        </div>
+                        <div class="rating-num" th:text="${f.rating + ' / 5'}">5 / 5</div>
+                    </td>
+
+                    <td>
+                        <div class="comment" th:text="${f.comment}">Comment text here</div>
+                    </td>
+
+                    <td>
+                        <div class="email-cell" th:text="${f.customerEmail}">customer@email.com</div>
+                    </td>
+
+                    <td>
+                            <span th:class="${f.approved ? 'pill pill-ok' : 'pill pill-pend'}"
+                                  th:text="${f.approved ? 'Approved' : 'Pending'}">Pending</span>
+                    </td>
+
+                    <td>
+                        <div class="date-cell" th:text="${f.createdAt != null ? #temporals.format(f.createdAt,'yyyy-MM-dd HH:mm') : ''}"></div>
+                    </td>
+
+                    <td style="text-align:right;">
+                        <div class="actions">
+                            <a class="btn btn-approve"
+                               th:if="${!f.approved}"
+                               th:href="@{/feedback/approve/{id}(id=${f.id})}">
+                                Approve ✓
+                            </a>
+                            <a class="btn btn-delete"
+                               th:href="@{/feedback/delete/{id}(id=${f.id})}">
+                                Delete ✕
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:if="${#lists.isEmpty(feedbackList)}">
+                    <td colspan="6" class="empty">
+                        <div class="icon">🗒️</div>
+                        <div class="t">No feedback submitted</div>
+                        <div class="s">Customer feedback will appear here for approval.</div>
+                    </td>
+                </tr>
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div><!-- /main-card -->
+
+<div class="stamp">❧ &nbsp; Lumière Studio &nbsp; ❧</div>
+
+</body>
+</html>

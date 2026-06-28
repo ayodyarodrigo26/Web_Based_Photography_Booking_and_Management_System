@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Add Feedback — Lumière Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --moss:       #F2A365;
+            --sage:       #F9D08A;
+            --alabaster:  #fef5ee;
+            --timberwolf: #f5d9bc;
+            --moonstone:  #F2A365;
+            --moon-dark:  #E07A67;
+            --moon-deep:  #8B3A20;
+            --moon-pale:  #faeee0;
+            --moon-ghost: rgba(242,163,101,0.12);
+
+            --bg:        #fffaf6;
+            --surface:   #fffcf9;
+            --surface2:  #fef5ee;
+            --border:    #f5d9bc;
+            --border-soft: rgba(249,208,138,0.35);
+
+            --ink:       #0f0604;
+            --ink-mid:   #1e0e06;
+            --ink-soft:  #4a2010;
+
+            --accent:    var(--moonstone);
+            --accent2:   var(--moss);
+
+            --shadow-sm: 0 2px 12px rgba(224,122,103,0.08);
+            --shadow-md: 0 12px 40px rgba(224,122,103,0.15), 0 2px 12px rgba(224,122,103,0.08);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            background-image:
+                    radial-gradient(ellipse 80% 60% at 0% 0%, rgba(249,208,138,0.30) 0%, transparent 55%),
+                    radial-gradient(ellipse 70% 50% at 100% 100%, rgba(139,58,32,0.18) 0%, transparent 55%),
+                    radial-gradient(ellipse 55% 65% at 90% 5%, rgba(250,238,224,0.40) 0%, transparent 50%),
+                    radial-gradient(ellipse 50% 40% at 10% 90%, rgba(242,163,101,0.15) 0%, transparent 50%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 20px;
+            color: var(--ink);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .wrap {
+            width: 100%;
+            max-width: 620px;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.6s ease both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .eyebrow {
+            text-align: center;
+            margin-bottom: 22px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            justify-content: center;
+        }
+        .eyebrow::before, .eyebrow::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+        }
+        .eyebrow span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--moonstone);
+            white-space: nowrap;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md), 0 0 0 1px rgba(242,163,101,0.18);
+        }
+
+        .head {
+            background: linear-gradient(135deg, var(--moon-deep) 0%, var(--moon-dark) 55%, #f0a882 100%);
+            padding: 32px 36px 28px;
+            position: relative;
+            overflow: hidden;
+        }
+        .head::before {
+            content: '';
+            position: absolute;
+            top: -80px; right: -80px;
+            width: 260px; height: 260px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.09);
+        }
+        .head::after {
+            content: '';
+            position: absolute;
+            bottom: -55px; left: 20%;
+            width: 200px; height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+        .head .deco {
+            position: absolute;
+            right: 28px; bottom: 14px;
+            font-size: 58px;
+            opacity: 0.12;
+            line-height: 1;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .head .overline {
+            position: relative; z-index: 1;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .head .overline::before {
+            content: '';
+            width: 28px; height: 1px;
+            background: rgba(255,255,255,0.50);
+        }
+        .head h1 {
+            position: relative; z-index: 1;
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.08;
+        }
+        .head p {
+            position: relative; z-index: 1;
+            margin-top: 10px;
+            color: rgba(255,255,255,0.65);
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        .body { padding: 28px 36px 34px; background: linear-gradient(180deg, rgba(242,163,101,0.06) 0%, transparent 40%); }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: var(--moonstone);
+            margin: 8px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .section-title::before, .section-title::after {
+            content: '';
+            height: 1px;
+            flex: 1;
+            background: linear-gradient(90deg, var(--border), transparent);
+        }
+        .section-title::after { background: linear-gradient(90deg, transparent, var(--border)); }
+
+        .row { margin-bottom: 18px; }
+
+        label {
+            display: block;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            margin-bottom: 8px;
+        }
+
+        .field {
+            width: 100%;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: rgba(254,245,238,0.90);
+            padding: 11px 14px;
+            outline: none;
+            color: var(--ink);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14.5px;
+            transition: border-color 0.18s, box-shadow 0.18s, transform 0.15s;
+        }
+        .field::placeholder { color: rgba(74,32,16,0.50); }
+        .field:focus {
+            border-color: var(--moonstone);
+            box-shadow: 0 0 0 4px rgba(242,163,101,0.20);
+            transform: translateY(-1px);
+            background: #fff;
+        }
+
+        textarea.field { min-height: 130px; resize: vertical; line-height: 1.6; }
+
+        .rating-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1.5px solid var(--border);
+            background: linear-gradient(135deg, rgba(242,163,101,0.10), rgba(249,208,138,0.18));
+        }
+
+        .stars {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 5px;
+        }
+        .stars input { display: none; }
+        .stars label {
+            margin: 0;
+            width: 36px; height: 36px;
+            border-radius: 9px;
+            border: 1.5px solid var(--border);
+            background: rgba(250,238,224,0.50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0;
+            transition: transform 0.12s, box-shadow 0.12s, background 0.14s, border-color 0.14s;
+            user-select: none;
+        }
+        .stars label:hover {
+            transform: translateY(-2px) scale(1.08);
+            box-shadow: 0 6px 18px rgba(224,122,103,0.20);
+            border-color: var(--moonstone);
+        }
+        .stars label::before { content: '★'; font-size: 17px; color: rgba(242,163,101,0.30); transition: color 0.12s, text-shadow 0.12s; }
+
+        .stars input:checked ~ label::before,
+        .stars label:hover ~ label::before,
+        .stars label:hover::before {
+            color: var(--moon-dark);
+            text-shadow: 0 2px 10px rgba(224,122,103,0.50);
+        }
+
+        .rating-hint { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
+        .rating-hint strong {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: var(--moon-dark);
+            display: block;
+            margin-top: 2px;
+        }
+
+        .error {
+            margin-top: 7px;
+            font-size: 12px;
+            color: #8a4a2e;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+        .error::before {
+            content: '!';
+            width: 17px; height: 17px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: #8a4a2e;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: 22px;
+            padding-top: 22px;
+            border-top: 1px solid rgba(242,163,101,0.40);
+        }
+
+        .btn {
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: transform 0.14s, box-shadow 0.14s;
+            user-select: none;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: linear-gradient(135deg, var(--moon-deep) 0%, var(--moon-dark) 100%);
+            box-shadow: 0 8px 24px rgba(139,58,32,0.30);
+            border: 1px solid rgba(0,0,0,0.10);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 34px rgba(139,58,32,0.38); }
+        .btn-primary:active { transform: translateY(0); }
+
+        .btn-ghost {
+            color: var(--ink-mid);
+            background: rgba(250,238,224,0.60);
+            border: 1.5px solid var(--border);
+        }
+        .btn-ghost:hover { transform: translateY(-1px); box-shadow: var(--shadow-sm); color: var(--moon-deep); }
+
+        .stamp {
+            text-align: center;
+            margin-top: 16px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            letter-spacing: 5px;
+            color: rgba(139,58,32,0.50);
+        }
+
+        .palette-bar {
+            height: 3px;
+            background: linear-gradient(90deg, var(--moon-deep), var(--moon-dark), var(--moonstone), var(--sage), var(--alabaster));
+            border-radius: 0 0 0 0;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+
+    <div class="eyebrow">
+        <span>CISRA Studio &nbsp;·&nbsp; Customer Experience</span>
+    </div>
+
+    <div class="card">
+        <div class="palette-bar"></div>
+
+        <div class="head">
+            <div class="deco">🌿</div>
+            <div class="overline">Share Your Experience</div>
+            <h1>Your <em>Feedback</em><br>Matters</h1>
+            <p>Your review will appear publicly after admin approval.</p>
+        </div>
+
+        <div class="body">
+
+            <form th:action="@{/feedback/save}" th:object="${feedback}" method="post">
+                <div class="section-title">Feedback Details</div>
+
+                <!-- Rating -->
+                <div class="row">
+                    <label>Rating</label>
+                    <div class="rating-wrap">
+                        <div class="rating-hint">
+                            Your rating
+                            <strong id="ratingText">— / 5</strong>
+                        </div>
+
+                        <div class="stars">
+                            <input id="star5" type="radio" th:field="*{rating}" value="5"/>
+                            <label for="star5" title="5"></label>
+
+                            <input id="star4" type="radio" th:field="*{rating}" value="4"/>
+                            <label for="star4" title="4"></label>
+
+                            <input id="star3" type="radio" th:field="*{rating}" value="3"/>
+                            <label for="star3" title="3"></label>
+
+                            <input id="star2" type="radio" th:field="*{rating}" value="2"/>
+                            <label for="star2" title="2"></label>
+
+                            <input id="star1" type="radio" th:field="*{rating}" value="1"/>
+                            <label for="star1" title="1"></label>
+                        </div>
+                    </div>
+                    <div class="error" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}"></div>
+                </div>
+
+                <select name="bookingId" class="field" required>
+                    <option value="">Select Booking</option>
+
+                    <option th:each="b : ${bookings}"
+                            th:value="${b.id}"
+                            th:data-package="${b.packageName}"
+                            th:text="'Booking #' + ${b.id} + ' - ' + ${b.eventDate}">
+                    </option>
+
+                </select>
+                <div class="row">
+                    <label>Selected Package</label>
+                    <input type="text" id="packageNameDisplay" class="field"
+                           readonly placeholder="Package will appear here"/>
+                </div>
+
+                <!-- Comment -->
+                <div class="row">
+                    <label>Your Comment</label>
+                    <textarea class="field" th:field="*{comment}" placeholder="Tell us about your experience…"></textarea>
+                    <div class="error" th:if="${#fields.hasErrors('comment')}" th:errors="*{comment}"></div>
+                </div>
+
+                <div class="footer">
+                    <button class="btn btn-primary" type="submit">
+                        Submit Feedback
+                        <span style="font-size:15px;">✦</span>
+                    </button>
+
+                    <a class="btn btn-ghost" th:href="@{/feedback/list}">
+                        View Reviews →
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+
+    <div class="stamp">❧ &nbsp; CISRA Studio &nbsp; ❧</div>
+</div>
+
+<script>
+    const ratingText = document.getElementById('ratingText');
+    const labels = ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+
+    const ratingInputs = document.querySelectorAll('input[type="radio"][id^="star"]');
+
+    ratingInputs.forEach(r => {
+        r.addEventListener('change', () => {
+            const val = parseInt(r.value, 10);
+            ratingText.textContent = labels[val - 1] + ' · ' + val + ' / 5';
+        });
+
+        if (r.checked) {
+            const val = parseInt(r.value, 10);
+            ratingText.textContent = labels[val - 1] + ' · ' + val + ' / 5';
+        }
+    });
+</script>
+<script>
+    const bookingSelect = document.querySelector("select[name='bookingId']");
+    const packageDisplay = document.getElementById("packageNameDisplay");
+
+    bookingSelect.addEventListener("change", function () {
+        const selectedOption = this.options[this.selectedIndex];
+        const packageName = selectedOption.getAttribute("data-package");
+
+        packageDisplay.value = packageName || "";
+    });
+</script>
+</body>
+</html>

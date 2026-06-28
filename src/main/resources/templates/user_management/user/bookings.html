@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card wide">
+
+        <div class="topbar">
+            <h2>📅 My Bookings</h2>
+            <a th:href="@{/user/dashboard}" class="btn-outline">← Back</a>
+        </div>
+
+        <!-- NO BOOKINGS -->
+        <div th:if="${#lists.isEmpty(bookings)}" class="alert info">
+            No bookings found.
+        </div>
+
+        <!-- BOOKINGS TABLE -->
+        <table th:if="${!#lists.isEmpty(bookings)}" style="width:100%; margin-top:15px;">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Package</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Payment</th>
+                <th>Action</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="b : ${bookings}">
+
+                <!-- SAFE VALUES -->
+                <td th:text="${b.id}"></td>
+
+                <td th:text="${b.packageName != null ? b.packageName : 'N/A'}"></td>
+
+                <td th:text="${b.eventDate != null ? b.eventDate : 'N/A'}"></td>
+
+                <td th:text="${b.status != null ? b.status : 'N/A'}"></td>
+
+                <td th:text="${b.paymentStatus != null ? b.paymentStatus : 'UNPAID'}"></td>
+
+                <!-- ACTION COLUMN -->
+                <td>
+
+                    <!-- ✅ ADVANCE PAYMENT -->
+                    <div th:if="${b.paymentStatus != null and b.paymentStatus.name() == 'ADVANCE_PAID'}">
+                        <a th:href="@{/payments(bookingId=${b.id}, payBalance=1)}">
+                            <button class="btn btn-customer">
+                                Pay Remaining
+                            </button>
+                        </a>
+                    </div>
+
+                    <!-- ✅ FULLY PAID -->
+                    <div th:if="${b.paymentStatus != null and b.paymentStatus.name() == 'FULLY_PAID'}">
+                        <span style="color:green; font-weight:bold;">✔ Paid</span>
+                    </div>
+
+                    <!-- ✅ UNPAID OR NULL -->
+                    <div th:if="${b.paymentStatus == null or b.paymentStatus.name() == 'UNPAID'}">
+                        <span style="color:red;">Pending</span>
+                    </div>
+
+                </td>
+
+            </tr>
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Customer Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card wide">
+
+        <div class="topbar">
+            <div>
+                <h2>Welcome, <span th:text="${user.fullName}">Customer</span> 👋</h2>
+                <p>Your customer dashboard</p>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:center;">
+                <a th:href="@{/}" class="btn-outline">Home Page</a>
+                <a th:href="@{/user/profile}" class="btn-outline">Profile</a>
+
+                <form th:action="@{/logout}" method="post" style="margin:0;">
+                    <button type="submit" class="btn-outline">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert info">
+            Role: <b th:text="${user.role.name}">ROLE_CUSTOMER</b>
+            &nbsp; • &nbsp;
+            Email: <b th:text="${user.email}">email</b>
+        </div>
+
+        <div class="grid-3">
+
+            <!-- PROFILE -->
+            <div class="role-card">
+                <span class="badge">👤 ACCOUNT</span>
+                <div class="role-title">Manage Profile</div>
+                <p class="role-sub">Update your details</p>
+
+                <a th:href="@{/user/profile}">
+                    <button class="btn btn-customer" type="button">Go to Profile</button>
+                </a>
+            </div>
+
+            <!-- BOOKINGS (FIXED) -->
+            <div class="role-card">
+                <span class="badge">📅 BOOKINGS</span>
+                <div class="role-title">My Bookings</div>
+                <p class="role-sub">View your booking history</p>
+
+                <a th:href="@{/booking/user/bookings}">
+                    <button class="btn btn-admin" type="button">View Bookings</button>
+                </a>
+            </div>
+
+            <!-- DELETE -->
+            <div class="role-card">
+                <span class="badge">🗑️ DANGER</span>
+                <div class="role-title">Delete Account</div>
+                <p class="role-sub">Permanently remove your account</p>
+
+                <a th:href="@{/user/delete}">
+                    <button class="btn btn-danger" type="button">Delete Account</button>
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

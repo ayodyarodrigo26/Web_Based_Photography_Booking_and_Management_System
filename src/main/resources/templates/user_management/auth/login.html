@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Login Portal</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+
+    <style>
+        .alert.success {
+            background: #E6F9EC;
+            color: #1F7A4D;
+            border: 1px solid #B7E4C7;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="shell">
+
+        <div class="header">
+            <h1>Login Portal</h1>
+            <p th:if="${selectedRole != null}">Sign in as <span th:text="${selectedRole}">ROLE</span></p>
+        </div>
+
+        <div class="alert success" th:if="${param.registered}">
+            ✅ Registration successful! Please login.
+        </div>
+        <div class="alert error" th:if="${param.error}">
+            ❌ Invalid email or password.
+        </div>
+        <div class="alert error" th:if="${param.roleMismatch}">
+            ❌ Wrong portal. This account is <b th:text="${param.actual[0]}">ROLE</b> but you tried to log in as <b th:text="${param.expected[0]}">ROLE</b>.
+        </div>
+        <div class="alert info" th:if="${param.logout}">
+            ℹ Logged out successfully.
+        </div>
+        <div class="alert info" th:if="${param.deleted}">
+            ℹ Account deleted successfully.
+        </div>
+        <div class="alert success" th:if="${param.resetSuccess}">
+            ✅ Password reset successful! Please login.
+        </div>
+        <div class="alert info" th:if="${param.feedbackRequired}">
+            ℹ Please log in as a customer to add feedback.
+        </div>
+
+
+        <div class="grid-3 single-center" th:if="${selectedRole == null}">
+
+            <!-- CUSTOMER (ONLY FOR CUSTOMER VIEW) -->
+            <a th:if="${view == 'customer'}"
+               th:href="@{/auth/login(role='customer', next=${next}, view='customer')}"
+               class="role-card role-customer"
+               style="text-decoration:none; color:inherit;">
+                <div>
+                    <span class="badge">👤 CUSTOMER</span>
+                    <div class="role-title">Customer Login</div>
+                    <span class="btn btn-customer">Continue as Customer</span>
+                </div>
+
+            </a>
+
+            <!-- PHOTOGRAPHER (ONLY FOR ADMIN VIEW) -->
+            <a th:if="${view == 'admin'}"
+               th:href="@{/auth/login(role='photographer', next=${next}, view='admin')}"
+               class="role-card role-photographer"
+               style="text-decoration:none; color:inherit;">
+
+                <div>
+                    <span class="badge">📷 PHOTOGRAPHER</span>
+                    <div class="role-title">Photographer Login</div>
+                    <p class="role-sub">Manage profile and bookings</p>
+                    <span class="btn btn-photographer">Continue as Photographer</span>
+                </div>
+
+            </a>
+
+            <!-- ADMIN (ONLY FOR ADMIN VIEW) -->
+            <a th:if="${view == 'admin'}"
+               th:href="@{/auth/login(role='admin', next=${next}, view='admin')}"
+               class="role-card role-admin"
+               style="text-decoration:none; color:inherit;">
+
+                <div>
+                    <span class="badge">🛡️ ADMIN</span>
+                    <div class="role-title">Admin Login</div>
+                    <p class="role-sub">Access administrative dashboard</p>
+                    <span class="btn btn-admin">Continue as Admin</span>
+                </div>
+
+            </a>
+
+        </div>
+
+        <p style="margin-bottom:14px;"
+           th:if="${selectedRole == 'CUSTOMER'}">
+
+            <a th:href="@{/}"
+               style="color:var(--muted); font-weight:700;">
+                ← Back to Home
+            </a>
+
+        </p>
+
+        <div class="login-form-wrap" th:if="${selectedRole != null}">
+            <p style="margin-bottom:14px;"
+               th:if="${selectedRole != 'CUSTOMER'}">
+
+                <a th:href="@{/auth/login(next=${next}, view=${view})}"
+                   style="color:var(--muted); font-weight:700;">
+                    ← Choose different role
+                </a>
+
+            </p>
+
+            <!-- ADMIN -->
+            <div class="role-card role-admin" th:if="${selectedRole == 'ADMIN'}">
+                <span class="badge">🛡️ ADMIN</span>
+                <div class="role-title">Admin Login</div>
+
+                <form th:action="@{/auth/login}" method="post">
+                    <input type="hidden" name="expectedRole" value="ADMIN">
+                    <input type="hidden" name="next" th:value="${next}">
+
+                    <label>Email</label>
+                    <input type="text" name="username" required>
+
+                    <label>Password</label>
+                    <div style="position: relative; width:100%;">
+                        <input type="password" name="password" id="adminPassword" required style="width:100%;">
+                        <span onclick="togglePassword('adminPassword')" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+                    </div>
+
+                    <button class="btn btn-admin" type="submit">Sign In as Admin</button>
+                </form>
+            </div>
+
+            <!-- CUSTOMER -->
+            <div class="role-card role-customer" th:if="${selectedRole == 'CUSTOMER'}">
+                <span class="badge">👤 CUSTOMER</span>
+                <div class="role-title">Customer Login</div>
+
+                <form th:action="@{/auth/login}" method="post">
+                    <input type="hidden" name="expectedRole" value="CUSTOMER">
+                    <input type="hidden" name="next" th:value="${next}">
+
+                    <label>Email</label>
+                    <input type="text" name="username" required>
+
+                    <label>Password</label>
+                    <div style="position: relative; width:100%;">
+                        <input type="password" name="password" id="customerPassword" required style="width:100%;">
+                        <span onclick="togglePassword('customerPassword')" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+                    </div>
+
+                    <div style="margin-top:10px;">
+                        <a th:href="@{/auth/forgot-password}" style="font-size:13px;">
+                            Forgot Password?
+                        </a>
+                    </div>
+
+                    <button class="btn btn-customer" type="submit">Sign In as Customer</button>
+                </form>
+                <div class="links">New customer? <a th:href="@{/auth/register/customer}">Register</a></div>
+            </div>
+
+
+            <!-- PHOTOGRAPHER -->
+            <div class="role-card role-photographer" th:if="${selectedRole == 'PHOTOGRAPHER'}">
+                <span class="badge">📷 PHOTOGRAPHER</span>
+                <div class="role-title">Photographer Login</div>
+
+                <form th:action="@{/auth/login}" method="post">
+                    <input type="hidden" name="expectedRole" value="PHOTOGRAPHER">
+                    <input type="hidden" name="next" th:value="${next}">
+
+                    <label>Email</label>
+                    <input type="text" name="username" required>
+
+                    <label>Password</label>
+                    <div style="position: relative; width:100%;">
+                        <input type="password" name="password" id="photographerPassword" required style="width:100%;">
+                        <span onclick="togglePassword('photographerPassword')" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+                    </div>
+
+                    <button class="btn btn-photographer" type="submit">Sign In as Photographer</button>
+                </form>
+                <div class="links">New photographer? <a th:href="@{/auth/register/photographer}">Register</a></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function togglePassword(id) {
+        const field = document.getElementById(id);
+        field.type = field.type === "password" ? "text" : "password";
+    }
+    setTimeout(() => {
+        const msg = document.querySelector('.alert.success');
+        if (msg) msg.style.display = 'none';
+    }, 3000);
+</script>
+</body>
+</html>

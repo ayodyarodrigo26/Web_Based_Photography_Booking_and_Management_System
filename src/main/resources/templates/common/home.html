@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio CISRA | Photography Booking System</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body class="lux-home-body">
+
+<header class="lux-header">
+    <div class="lux-brand">STUDIO CISRA</div>
+
+    <nav class="lux-nav">
+        <a th:href="@{/}">Home</a>
+        <a th:href="@{/user/packages}">Packages</a>
+        <a th:href="@{/offers}">Offers</a>
+        <a th:href="@{/coupon-codes}">Coupons</a>
+        <a th:href="@{/feedback/list}">Feedback</a>
+
+
+
+        <!-- show only when NOT logged in -->
+        <a sec:authorize="!isAuthenticated()"
+           th:href="@{/auth/register/customer}"
+           class="lux-register-link">Register</a>
+
+        <a sec:authorize="!isAuthenticated()"
+           th:href="@{/auth/login(role='customer')}"
+           class="lux-login-link">Login</a>
+
+        <!-- show only for logged-in customers -->
+        <a sec:authorize="hasRole('CUSTOMER')"
+           th:href="@{/user/dashboard}"
+           class="lux-login-link">My Profile</a>
+
+        <a sec:authorize="hasRole('CUSTOMER')"
+           th:href="@{/user/cart}"
+           class="lux-login-link">Cart</a>
+
+        <form sec:authorize="isAuthenticated()"
+              th:action="@{/logout}"
+              method="post"
+              class="lux-logout-form">
+            <button type="submit" class="lux-login-link lux-logout-btn">Logout</button>
+        </form>
+    </nav>
+</header>
+
+<section class="lux-hero">
+    <div class="lux-hero-marquee">
+
+        <div class="lux-marquee-track">
+            <img src="/images/hero1.jpg" alt="Hero 1" class="lux-marquee-img">
+            <img src="/images/hero2.jpg" alt="Hero 2" class="lux-marquee-img">
+            <img src="/images/hero3.jpg" alt="Hero 3" class="lux-marquee-img">
+            <img src="/images/hero5.jpg" alt="Hero 4" class="lux-marquee-img">
+
+            <img src="/images/hero1.jpg" alt="Hero 1 repeat" class="lux-marquee-img">
+            <img src="/images/hero2.jpg" alt="Hero 2 repeat" class="lux-marquee-img">
+            <img src="/images/hero3.jpg" alt="Hero 3 repeat" class="lux-marquee-img">
+            <img src="/images/hero5.jpg" alt="Hero 4 repeat" class="lux-marquee-img">
+        </div>
+
+        <div class="lux-hero-overlay">
+            <p class="lux-tagline">Elegant Photography for Life’s Finest Moments</p>
+            <h1>Capture Your Story With Style</h1>
+            <p class="lux-subtext">
+                Discover photography packages, explore ongoing offers, and book unforgettable sessions with ease.
+            </p>
+
+            <div class="lux-hero-actions">
+                <a th:href="@{/user/packages}" class="lux-btn lux-btn-light">View Packages</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="lux-section">
+    <div class="lux-intro">
+        <span class="lux-small-title">WELCOME TO STUDIO CISRA</span>
+        <h2>Modern Photography Booking With a Premium Experience</h2>
+        <p>
+            Browse photography packages, discover promotional offers, use coupon codes, and view genuine client feedback —
+            all in one elegant web platform.
+        </p>
+    </div>
+</section>
+
+<section class="lux-services-section">
+    <div class="lux-services-grid">
+        <a class="lux-service-card" th:href="@{/user/packages}">
+            <h3>Photography Packages</h3>
+            <p>Explore available wedding, event, portrait, and other photography packages.</p>
+        </a>
+
+        <a class="lux-service-card" th:href="@{/offers}">
+            <h3>Special Offers</h3>
+            <p>See active promotions and limited-time discounts currently available.</p>
+        </a>
+
+        <a class="lux-service-card" th:href="@{/coupon-codes}">
+            <h3>Coupon Codes</h3>
+            <p>Browse available coupon codes that can be used during booking and payment.</p>
+        </a>
+
+
+        <a class="lux-service-card" th:href="@{/feedback/list}">
+            <h3>Client Feedback</h3>
+            <p>Read approved reviews and experiences shared by previous customers.</p>
+        </a>
+
+
+
+    </div>
+</section>
+
+<section class="lux-testimonials-section">
+    <div class="lux-testimonials-header">
+        <span class="lux-mini-label">CLIENT TESTIMONIALS</span>
+        <h2>Trusted by Our Clients</h2>
+        <p>Real experiences shared by clients who trusted us to capture their special moments.</p>
+    </div>
+
+    <div class="lux-testimonials-grid">
+        <div class="lux-testimonial-card">
+            <div class="lux-stars">★★★★★</div>
+            <p>“A truly professional and unforgettable experience. The photos were elegant, natural, and beautifully edited.”</p>
+            <h4>Nadeera Perera</h4>
+            <span>Portrait Session</span>
+        </div>
+
+        <div class="lux-testimonial-card">
+            <div class="lux-stars">★★★★★</div>
+            <p>“Highly recommended! The team made us feel comfortable throughout the session and delivered stunning work.”</p>
+            <h4>Kalindu Ashirwada</h4>
+            <span>Wedding Session</span>
+        </div>
+
+        <div class="lux-testimonial-card">
+            <div class="lux-stars">★★★★★</div>
+            <p>“Creative, friendly, and very professional. Every image captured the emotion of the day perfectly.”</p>
+            <h4>Kaushala Udani</h4>
+            <span>Event Photography</span>
+        </div>
+    </div>
+</section>
+
+<section class="lux-cta-section">
+    <div class="lux-cta-box">
+        <span class="lux-mini-label light">CONNECT WITH US</span>
+        <h2>Ready to Capture Timeless Moments With STUDIO CISRA?</h2>
+        <p>
+            Contact us today to schedule your photography session and experience elegant storytelling through photography.
+        </p>
+
+        <a sec:authorize="!isAuthenticated()" th:href="@{/auth/login(role='customer')}" class="lux-cta-btn">Book Now</a>
+        <a sec:authorize="hasRole('CUSTOMER')" th:href="@{/user/packages}" class="lux-cta-btn">Book Now</a>
+    </div>
+</section>
+
+<footer class="lux-footer-section">
+    <div class="lux-footer-grid">
+        <div class="lux-footer-brand">
+            <h3>STUDIO CISRA</h3>
+            <p>
+                STUDIO CISRA is a premium photography studio in Sri Lanka, dedicated to creating timeless and elegant visual stories.
+            </p>
+        </div>
+
+        <div class="lux-footer-links">
+            <h4>Our Services</h4>
+            <ul>
+                <li>Wedding Photography</li>
+                <li>Portrait Sessions</li>
+                <li>Event Coverage</li>
+                <li>Couple Shoots</li>
+                <li>Creative Photography</li>
+            </ul>
+        </div>
+
+        <div class="lux-footer-contact">
+            <h4>Contact</h4>
+            <p>STUDIO CISRA</p>
+            <p>Sri Lanka</p>
+            <p>Email: studiocisra@gmail.com</p>
+            <p>Phone: 0777 123 456</p>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

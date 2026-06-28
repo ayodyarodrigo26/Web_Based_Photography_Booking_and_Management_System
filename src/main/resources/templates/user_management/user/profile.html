@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card mid">
+
+        <div class="header" style="margin-bottom:14px;">
+            <h1 style="font-size:30px;">My Profile</h1>
+            <p>Update your profile details</p>
+        </div>
+
+        <!-- SUCCESS MESSAGE -->
+        <div class="alert success" th:if="${param.updated}">
+            ✅ Profile updated successfully!
+        </div>
+
+        <div class="alert info">
+            Email: <b th:text="${user.email}">email</b> <br/>
+            Role: <b th:text="${user.role.name}">role</b>
+        </div>
+
+        <!-- ✅ FIXED FORM ACTION -->
+        <form th:action="@{/user/profile}" th:object="${form}" method="post">
+
+            <label>Full Name</label>
+            <input th:field="*{fullName}" placeholder="Full Name" required/>
+
+            <label>Phone Number</label>
+            <input th:field="*{phone}" placeholder="Phone"/>
+
+            <button type="submit" class="btn btn-customer">Update Profile</button>
+        </form>
+
+        <div class="links" style="margin-top:14px;">
+
+            <!-- PHOTOGRAPHER -->
+            <span th:if="${user.role.name == 'ROLE_PHOTOGRAPHER'}">
+        ← <a th:href="@{/photographer/dashboard}">Back to Dashboard</a>
+    </span>
+
+            <!-- ADMIN -->
+            <span th:if="${user.role.name == 'ROLE_ADMIN'}">
+        ← <a th:href="@{/admin/management-dashboard}">Back to Dashboard</a>
+    </span>
+
+
+
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

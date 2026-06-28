@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Admin Category Packages</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lora:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f8f2eb;
+            --surface: rgba(255, 248, 241, 0.96);
+            --surface-soft: rgba(255, 252, 248, 0.92);
+            --brown-dark: #2f201b;
+            --brown-main: #5f4033;
+            --brown-mid: #8b5e4a;
+            --brown-soft: #b98b72;
+            --brown-light: #ead8ca;
+            --chocolate: #3b2a22;
+            --chocolate-soft: #6d4d3d;
+            --gold-soft: #c79b63;
+            --text-dark: #2f221d;
+            --text-mid: #6d574c;
+            --text-soft: #8f7a6f;
+            --border: rgba(95, 64, 51, 0.14);
+            --shadow: 0 16px 36px rgba(58, 39, 33, 0.16);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Lora', serif;
+            color: var(--text-dark);
+            background:
+                    radial-gradient(circle at top left, rgba(185, 139, 114, 0.12), transparent 28%),
+                    radial-gradient(circle at bottom right, rgba(199, 155, 99, 0.10), transparent 24%),
+                    linear-gradient(180deg, #fbf7f2 0%, #f4ebe2 100%);
+            min-height: 100vh;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, var(--chocolate), var(--chocolate-soft));
+            color: #fff8f3;
+            padding: 20px 32px;
+            border-bottom: 3px solid rgba(255,255,255,0.08);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+        }
+
+        .topbar-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .topbar-title {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .topbar-sub {
+            margin-top: 4px;
+            font-size: 0.95rem;
+            color: rgba(255,248,243,0.82);
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Lora', serif;
+        }
+
+        .btn-back {
+            background: #f1dfd2;
+            color: var(--brown-dark);
+        }
+
+        .btn-back:hover {
+            background: #e8cfbe;
+            transform: translateY(-1px);
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--gold-soft), #b07a44);
+            color: #fffaf5;
+            box-shadow: 0 10px 18px rgba(107, 70, 56, 0.18);
+        }
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #b9864e, #9f6a3b);
+            transform: translateY(-1px);
+        }
+
+        .page-wrap {
+            max-width: 1200px;
+            margin: 28px auto;
+            padding: 0 20px 30px;
+        }
+
+        .hero-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 24px 26px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.45);
+            margin-bottom: 22px;
+        }
+
+        .hero-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .hero-title {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: var(--brown-dark);
+        }
+
+        .hero-badge {
+            background: rgba(95, 64, 51, 0.08);
+            color: var(--brown-main);
+            border: 1px solid rgba(95, 64, 51, 0.16);
+            border-radius: 999px;
+            padding: 8px 16px;
+            font-weight: 600;
+        }
+
+        .hero-text {
+            margin: 0;
+            color: var(--text-mid);
+            font-size: 1rem;
+        }
+
+        .table-shell {
+            background: var(--surface-soft);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,0.45);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 14px;
+            min-width: 980px;
+        }
+
+        thead th {
+            background: linear-gradient(135deg, var(--chocolate), #2b1d18);
+            color: #fff8f2;
+            padding: 16px 16px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.05rem;
+            text-align: left;
+            border: none;
+        }
+
+        thead th:first-child {
+            border-top-left-radius: 16px;
+        }
+
+        thead th:last-child {
+            border-top-right-radius: 16px;
+        }
+
+        tbody tr {
+            background: #fffaf6;
+            box-shadow: 0 12px 28px rgba(58, 39, 33, 0.10);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        tbody tr:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px rgba(58, 39, 33, 0.18);
+        }
+
+        tbody td {
+            padding: 18px 16px;
+            vertical-align: middle;
+            border: none;
+        }
+
+        tbody td:first-child {
+            border-top-left-radius: 18px;
+            border-bottom-left-radius: 18px;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.45rem;
+            font-weight: 700;
+            color: var(--brown-dark);
+            width: 220px;
+        }
+
+        tbody td:last-child {
+            border-top-right-radius: 18px;
+            border-bottom-right-radius: 18px;
+        }
+
+        .category-cell {
+            color: var(--brown-main);
+            font-weight: 600;
+            font-size: 1.08rem;
+            white-space: nowrap;
+        }
+
+        .desc-cell {
+            color: var(--text-mid);
+            line-height: 1.8;
+            font-size: 1rem;
+        }
+
+        .package-includes {
+            list-style: none;
+            padding-left: 0;
+            margin: 14px 0 0 0;
+        }
+
+        .package-includes li {
+            position: relative;
+            padding-left: 1.4rem;
+            margin-bottom: 0.28rem;
+            color: var(--text-mid);
+        }
+
+        .package-includes li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: var(--brown-soft);
+            font-weight: 700;
+        }
+
+        .price-cell {
+            text-align: right;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--brown-dark);
+            white-space: nowrap;
+        }
+
+        .action-cell {
+            width: 220px;
+        }
+
+        .action-stack {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 9px 14px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+        }
+
+        .btn-edit {
+            background: #f1dfd2;
+            color: var(--brown-dark);
+        }
+
+        .btn-edit:hover {
+            background: #e8cfbe;
+        }
+
+        .btn-delete {
+            background: #7a3d34;
+            color: #fff8f4;
+        }
+
+        .btn-delete:hover {
+            background: #643129;
+        }
+
+        .empty-box {
+            background: #fffaf6;
+            border-radius: 18px;
+            padding: 40px 24px;
+            text-align: center;
+            color: var(--text-soft);
+            font-weight: 600;
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            color: var(--text-soft);
+            font-size: 0.95rem;
+            text-align: right;
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 16px 18px;
+            }
+
+            .topbar-title {
+                font-size: 1.5rem;
+            }
+
+            .hero-title {
+                font-size: 1.5rem;
+            }
+
+            .page-wrap {
+                padding: 0 14px 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <div class="topbar-inner">
+        <div>
+            <h1 class="topbar-title">Package Management</h1>
+            <div class="topbar-sub">Admin view of packages under the selected category</div>
+        </div>
+
+        <div class="topbar-actions">
+            <a class="btn btn-back" th:href="@{/admin/categories}">Back to Categories</a>
+            <a class="btn btn-add" th:href="@{/admin/packages/create}">Add New Package</a>
+        </div>
+    </div>
+</div>
+
+<div class="page-wrap">
+
+    <div class="hero-card">
+        <div class="hero-head">
+            <h2 class="hero-title">Packages in Category</h2>
+            <div class="hero-badge" th:text="${category.name}">Category Name</div>
+        </div>
+        <p class="hero-text">
+            This page shows only the packages assigned to the selected category for admin management.
+        </p>
+    </div>
+
+    <div class="table-shell">
+        <div class="table-responsive">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Description / Includes</th>
+                    <th style="text-align:right;">Price (LKR)</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(packages)}">
+                    <td colspan="5">
+                        <div class="empty-box">
+                            No packages found for this category.
+                        </div>
+                    </td>
+                </tr>
+
+                <tr th:each="p : ${packages}">
+                    <td th:text="${p.name}">Package Name</td>
+
+                    <td class="category-cell" th:text="${p.category}">Category</td>
+
+                    <td class="desc-cell">
+                        <div th:text="${p.description}">Description</div>
+
+                        <ul class="package-includes"
+                            th:if="${p.includes != null and !#strings.isEmpty(p.includes)}">
+                            <li th:each="item : ${#strings.arraySplit(p.includes, ',')}"
+                                th:text="${#strings.trim(item)}">Include item</li>
+                        </ul>
+                    </td>
+
+                    <td class="price-cell">
+                        LKR <span th:text="${#numbers.formatDecimal(p.price, 1, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </td>
+
+                    <td class="action-cell">
+                        <div class="action-stack">
+                            <a class="btn btn-sm btn-edit"
+                               th:href="@{/admin/packages/edit/{id}(id=${p.id})}">
+                                Edit
+                            </a>
+
+                            <button type="button" class="btn btn-sm btn-delete"
+                                    th:onclick="|openDeleteModal(${p.id})|">
+                                Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer-note">
+            Total packages: <span th:text="${#lists.size(packages)}">0</span>
+        </div>
+    </div>
+</div>
+
+<div id="deleteModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+background: rgba(0,0,0,0.6); z-index:9999; justify-content:center; align-items:center;">
+
+    <div style="background:white; padding:25px; border-radius:12px; width:350px; text-align:center;
+                border-top:5px solid red; box-shadow:0 10px 30px rgba(0,0,0,0.3);">
+
+        <h3 style="color:red;">⚠ Confirm Deletion</h3>
+        <p>Are you sure you want to delete this package?</p>
+
+        <div style="margin-top:20px;">
+            <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+            <button class="btn btn-danger" onclick="confirmDelete()">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let deleteId = null;
+
+    function openDeleteModal(id) {
+        deleteId = id;
+        document.getElementById("deleteModal").style.display = "flex";
+    }
+
+    function closeDeleteModal() {
+        document.getElementById("deleteModal").style.display = "none";
+    }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Bookings</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg,
+            #c9d6cc 0%,
+            #d8d4c8 25%,
+            #e2dbd0 50%,
+            #d6cfc4 75%,
+            #cdd4cc 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 36px 40px;
+            box-shadow:
+                    0 2px 4px rgba(0,0,0,0.04),
+                    0 8px 24px rgba(0,0,0,0.06),
+                    0 20px 48px rgba(0,0,0,0.04);
+        }
+
+        /* ── Header ── */
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 28px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            letter-spacing: -0.3px;
+        }
+
+        .title-icon {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .title-icon svg {
+            width: 18px;
+            height: 18px;
+            fill: white;
+        }
+
+        .back-btn {
+            text-decoration: none;
+            color: #555;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1.5px solid #ddd;
+            border-radius: 10px;
+            padding: 7px 16px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .back-btn:hover {
+            border-color: #aaa;
+            color: #222;
+            background: #f5f5f5;
+        }
+
+        /* ── Table ── */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            background: #f0ede8;
+            border-radius: 10px;
+        }
+
+        thead th {
+            padding: 13px 18px;
+            text-align: left;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #444;
+        }
+
+        thead th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        thead th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        tbody tr {
+            border-bottom: 1px solid #f0ede8;
+            transition: background 0.15s ease;
+        }
+
+        tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        tbody tr:hover {
+            background: #faf9f7;
+        }
+
+        tbody td {
+            padding: 18px 18px;
+            font-size: 0.9rem;
+            color: #2a2a2a;
+            font-weight: 400;
+        }
+
+        /* Status badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+
+        .status-PENDING    { background: #fff3cd; color: #856404; }
+        .status-CONFIRMED  { background: #d1e7dd; color: #0a4c2d; }
+        .status-CANCELLED  { background: #f8d7da; color: #842029; }
+        .status-COMPLETED  { background: #cfe2ff; color: #084298; }
+
+        /* Empty state */
+        .empty-row td {
+            text-align: center;
+            padding: 48px 18px;
+            color: #999;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="page-wrapper">
+    <div class="card">
+
+        <!-- Header -->
+        <div class="card-header">
+            <div class="card-title">
+                <div class="title-icon">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19 4h-1V2h-2v2H8V2H6v2H5C3.9 4 3 4.9 3 6v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM5 8V6h14v2H5zm2 4h10v2H7zm0 4h7v2H7z"/>
+                    </svg>
+                </div>
+                My Bookings
+            </div>
+            <a th:href="@{/photographer/dashboard}" class="back-btn">← Back</a>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Thymeleaf loop -->
+                <tr th:each="b : ${bookings}">
+                    <td th:text="${b.id}"></td>
+                    <td th:text="${b.customerName}"></td>
+                    <td th:text="${b.eventDate}"></td>
+                    <td>
+                            <span class="status-badge"
+                                  th:classappend="'status-' + ${b.status}"
+                                  th:text="${b.status}">
+                            </span>
+                    </td>
+                </tr>
+
+                <!-- Empty state when no bookings -->
+                <tr class="empty-row" th:if="${#lists.isEmpty(bookings)}">
+                    <td colspan="4">No bookings found.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

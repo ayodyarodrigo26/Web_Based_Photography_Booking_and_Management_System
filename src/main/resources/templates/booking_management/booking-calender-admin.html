@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Calendar | Photography System</title>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+    <style>
+        :root { --paper: #f6f0e6; --sepia: #a67c52; --ink: #2b1f1a; }
+        body { font-family: Georgia, serif; background: #efe2cf; padding: 20px; color: var(--ink); }
+        .calendar-card { background: var(--paper); padding: 30px; border-radius: 18px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        #calendar { max-width: 1000px; margin: 0 auto; background: white; padding: 15px; border-radius: 10px; min-height: 600px; color: #333; }
+        .btn-back { text-decoration: none; color: var(--sepia); font-weight: bold; margin-bottom: 20px; display: inline-block; }
+        /* Style for events */
+        .fc-event { cursor: pointer; padding: 2px; }
+        .fc-event-title { font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="calendar-card">
+
+    <h1>Photography Booking Schedule</h1>
+    <div id="calendar"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        // 1. Get the simplified Map data from the Controller
+        var eventsData = /*[[${bookings}]]*/ [];
+        console.log("Data arriving from Controller:", eventsData);
+
+        // 2. Initialize the Calendar
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            // 3. Feed the data directly (since we formatted it in the Controller)
+            events: eventsData,
+
+            eventClick: function(info) {
+
+                let bookingId = info.event.id;
+
+                // 🔴 DEBUG LOG
+                console.log("Clicked booking ID:", bookingId);
+
+                // ❌ prevent invalid navigation
+                if (!bookingId || bookingId === "undefined" || bookingId === "null") {
+                    alert("Invalid booking selected");
+                    return;
+                }
+
+                // ✅ correct redirect
+                window.location.href = '/booking/summary/' + bookingId;
+            },
+
+            // Helpful settings for visibility
+            eventTimeFormat: {
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short'
+            },
+            displayEventEnd: true,
+            nowIndicator: true
+        });
+
+        calendar.render();
+    });
+    /*]]>*/
+</script>
+</body>
+</html>

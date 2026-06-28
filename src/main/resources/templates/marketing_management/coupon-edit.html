@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Coupon</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* palette from your image */
+            --sage-cream:   #E8E7C9;
+            --soft-white:   #F5F5F5;
+            --taupe-brown:  #AD9880;
+
+            --sage-cream-2: #F1F0DB;
+            --soft-white-2: #FBFBFB;
+            --taupe-brown-2:#8F7B65;
+
+            --text-dark:    #2f241c;
+            --text-mid:     #5e4b3d;
+            --text-soft:    #8a7768;
+
+            --border:       rgba(173,152,128,0.35);
+            --border-strong:rgba(173,152,128,0.55);
+
+            --shadow-sm:    0 2px 8px rgba(90,70,50,0.08);
+            --shadow-md:    0 8px 28px rgba(90,70,50,0.12), 0 2px 8px rgba(90,70,50,0.07);
+            --shadow-lg:    0 20px 50px rgba(70,55,40,0.16), 0 4px 16px rgba(70,55,40,0.09);
+
+            --danger:       #b04848;
+            --danger-bg:    rgba(176,72,72,0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Lora', Georgia, serif;
+            background:
+                    radial-gradient(ellipse at 0% 0%, rgba(232,231,201,0.34) 0%, transparent 38%),
+                    radial-gradient(ellipse at 100% 100%, rgba(173,152,128,0.18) 0%, transparent 38%),
+                    radial-gradient(ellipse at 100% 0%, rgba(245,245,245,0.35) 0%, transparent 26%),
+                    radial-gradient(ellipse at 0% 100%, rgba(232,231,201,0.18) 0%, transparent 26%),
+                    linear-gradient(180deg, #fcfcfa 0%, #f6f3ee 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 44px 22px;
+            overflow-x: hidden;
+            color: var(--text-dark);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                    repeating-linear-gradient(92deg, transparent 0px, rgba(173,152,128,0.025) 1px, transparent 2px, transparent 20px),
+                    repeating-linear-gradient(88deg, transparent 0px, rgba(0,0,0,0.018) 1px, transparent 3px, transparent 42px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 560px;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.55s cubic-bezier(.22,.68,0,1.1);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .eyebrow {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .eyebrow-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            background: rgba(255,255,255,0.84);
+            border: 1px solid var(--border);
+            padding: 7px 20px;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .eyebrow-pill::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--taupe-brown);
+        }
+
+        .card {
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(173,152,128,0.22);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--sage-cream) 0%, var(--soft-white) 45%, var(--taupe-brown) 100%);
+            padding: 28px 36px 26px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 210px;
+            height: 210px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -35px;
+            left: 42%;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: rgba(232,231,201,0.20);
+        }
+
+        .header-accent {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--sage-cream), var(--soft-white), var(--taupe-brown), transparent);
+        }
+
+        .header-overline {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: rgba(47,36,28,0.72);
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-overline::before {
+            content: '';
+            width: 18px;
+            height: 1px;
+            background: rgba(47,36,28,0.45);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.15;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--text-mid);
+        }
+
+        .card-subtitle {
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(47,36,28,0.65);
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-body {
+            padding: 28px 36px 32px;
+            background: linear-gradient(180deg, rgba(251,251,251,0.96) 0%, rgba(245,245,245,0.96) 100%);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-strong);
+        }
+
+        .row {
+            margin-bottom: 18px;
+        }
+
+        .field-label {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            margin-bottom: 7px;
+        }
+
+        .code-wrap {
+            position: relative;
+        }
+
+        .code-icon {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .code-input {
+            width: 100%;
+            padding: 11px 14px 11px 42px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(232,231,201,0.32) 100%);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            color: var(--text-mid);
+            outline: none;
+            transition: all 0.18s ease;
+            text-transform: uppercase;
+        }
+
+        .code-input:focus {
+            border-color: var(--taupe-brown);
+            background: var(--soft-white-2);
+            box-shadow: 0 0 0 3px rgba(173,152,128,0.12);
+        }
+
+        .value-wrap {
+            position: relative;
+        }
+
+        .value-wrap input {
+            width: 100%;
+        }
+
+        .prefix {
+            position: absolute;
+            left: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--taupe-brown-2);
+            pointer-events: none;
+            opacity: 0.95;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--taupe-brown);
+            pointer-events: none;
+        }
+
+        .has-prefix input {
+            padding-left: 46px;
+        }
+
+        .has-suffix input {
+            padding-right: 42px;
+        }
+
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 11px 14px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(232,231,201,0.18) 100%);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.18s ease;
+        }
+
+        input[type="number"]:focus,
+        select:focus {
+            border-color: var(--taupe-brown);
+            background: var(--soft-white-2);
+            box-shadow: 0 0 0 3px rgba(173,152,128,0.12);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: linear-gradient(135deg, rgba(232,231,201,0.24) 0%, rgba(245,245,245,0.84) 50%, rgba(173,152,128,0.12) 100%);
+            border: 1px solid rgba(173,152,128,0.20);
+            border-radius: 10px;
+            margin-bottom: 22px;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+
+        .toggle-row:hover {
+            background: linear-gradient(135deg, rgba(232,231,201,0.34) 0%, rgba(245,245,245,0.92) 50%, rgba(173,152,128,0.18) 100%);
+        }
+
+        .toggle-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .toggle-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+        }
+
+        .toggle-desc {
+            font-family: 'Lora', serif;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .toggle-right {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .toggle-right input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--taupe-brown);
+            cursor: pointer;
+        }
+
+        .toggle-status {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--taupe-brown-2);
+        }
+
+        .error {
+            font-family: 'Lora', serif;
+            font-size: 12px;
+            color: var(--danger);
+            background: var(--danger-bg);
+            margin-top: 5px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error::before {
+            content: '!';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .card-footer {
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .card-footer::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--taupe-brown), transparent);
+        }
+
+        .btn-save {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fffaf3;
+            background: linear-gradient(135deg, var(--taupe-brown-2) 0%, var(--taupe-brown) 55%, #7c6b58 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 4px 14px rgba(143,123,101,0.28), inset 0 1px 0 rgba(255,255,255,0.12);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save::after {
+            content: '✓';
+            font-size: 14px;
+        }
+
+        .btn-save:hover {
+            filter: brightness(1.03);
+            transform: translateY(-1px);
+        }
+
+        .back-link {
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-soft);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 11px 18px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: linear-gradient(180deg, rgba(255,255,255,0.78) 0%, rgba(245,245,245,0.96) 100%);
+            transition: all 0.15s;
+        }
+
+        .back-link::before {
+            content: '←';
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            border-color: var(--taupe-brown);
+            color: var(--taupe-brown-2);
+            background: rgba(255,255,255,0.96);
+        }
+
+        .stamp-footer {
+            text-align: center;
+            margin-top: 14px;
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--text-soft);
+            opacity: 0.65;
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-wrapper">
+
+    <div class="eyebrow">
+        <span class="eyebrow-pill">Photography Studio — Coupons</span>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <div class="header-accent"></div>
+            <div class="header-overline">Edit Record</div>
+            <h2 class="card-title">Update <em>Coupon</em></h2>
+            <p class="card-subtitle">Modify the coupon details and save your changes.</p>
+        </div>
+
+        <div class="card-body">
+            <form th:action="@{/coupons/update/{id}(id=${coupon.id})}"
+                  th:object="${coupon}"
+                  method="post">
+
+                <div class="section-title">Coupon Details</div>
+
+                <div class="row">
+                    <label class="field-label">Coupon Code</label>
+                    <div class="code-wrap">
+                        <span class="code-icon">🎟</span>
+                        <input class="code-input" type="text" th:field="*{code}" placeholder="e.g. SAVE20">
+                    </div>
+                    <div class="error" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></div>
+                </div>
+
+                <div class="row">
+                    <label class="field-label">Discount Type</label>
+                    <select th:field="*{discountType}"
+                            style="background-image:url('data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'8\' viewBox=\'0 0 12 8\'%3E%3Cpath d=\'M1 1l5 5 5-5\' stroke=\'%238F7B65\' stroke-width=\'1.5\' fill=\'none\' stroke-linecap=\'round\'/%3E%3C/svg%3E'); background-repeat:no-repeat; background-position:calc(100% - 14px) center; padding-right:38px; -webkit-appearance:none;">
+                        <option value="">— Select Type —</option>
+                        <option value="PERCENT">Percentage ( % )</option>
+                        <option value="FIXED">Fixed Amount ( Rs )</option>
+                    </select>
+                    <div class="error" th:if="${#fields.hasErrors('discountType')}" th:errors="*{discountType}"></div>
+                </div>
+
+                <div class="row">
+                    <label class="field-label">Discount Value</label>
+
+                    <div id="valueWrap" class="value-wrap has-suffix">
+                        <span id="prefix" class="prefix" style="display:none;">Rs</span>
+                        <input id="valueInput" type="number" step="0.01" min="0"
+                               th:field="*{value}" placeholder="e.g. 20.00">
+                        <span id="suffix" class="suffix">%</span>
+                    </div>
+
+                    <div class="error" th:if="${#fields.hasErrors('value')}" th:errors="*{value}"></div>
+                </div>
+
+                <label class="toggle-row" for="activeCheck">
+                    <div class="toggle-left">
+                        <div class="toggle-title">Coupon Status</div>
+                        <div class="toggle-desc">Mark this coupon as publicly active</div>
+                    </div>
+                    <div class="toggle-right">
+                        <input type="checkbox" id="activeCheck" th:field="*{active}">
+                        <span class="toggle-status">Active</span>
+                    </div>
+                </label>
+
+                <div class="card-footer">
+                    <button class="btn-save" type="submit">Update Coupon</button>
+                    <a class="back-link" th:href="@{/coupons}">Back to list</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="stamp-footer">Photography Studio</div>
+
+</div>
+
+<script>
+    const typeSelect = document.querySelector("select[name='discountType']");
+    const valueWrap  = document.getElementById("valueWrap");
+    const prefixEl   = document.getElementById("prefix");
+    const suffixEl   = document.getElementById("suffix");
+    const valueInput = document.getElementById("valueInput");
+
+    function updateValueDecorations() {
+        if (!typeSelect) return;
+
+        const isFixed = (typeSelect.value === "FIXED");
+
+        if (isFixed) {
+            prefixEl.style.display = "block";
+            suffixEl.style.display = "none";
+            valueWrap.classList.add("has-prefix");
+            valueWrap.classList.remove("has-suffix");
+        } else {
+            prefixEl.style.display = "none";
+            suffixEl.style.display = "block";
+            suffixEl.textContent = "%";
+            valueWrap.classList.remove("has-prefix");
+            valueWrap.classList.add("has-suffix");
+        }
+    }
+
+    function formatToTwoDecimals() {
+        if (!valueInput || valueInput.value === "") return;
+        const num = Number(valueInput.value);
+        if (!Number.isFinite(num)) return;
+        valueInput.value = num.toFixed(2);
+    }
+
+    updateValueDecorations();
+    typeSelect && typeSelect.addEventListener("change", updateValueDecorations);
+    valueInput && valueInput.addEventListener("blur", formatToTwoDecimals);
+</script>
+
+</body>
+</html>

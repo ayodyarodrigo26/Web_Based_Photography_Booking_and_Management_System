@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Feedback Submitted — Lumière Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --warm1: #8B3A20;
+            --warm2: #B85C30;
+            --warm3: #E07A67;
+            --warm4: #F2A365;
+            --warm5: #F9D08A;
+
+            --brown1: #5C2510;
+            --brown2: #7A3318;
+            --brown3: #A04828;
+
+            --cream:  #fef5ee;
+            --cream2: #fffcf9;
+
+            --bg:          #fffaf6;
+            --surface:     #fffcf9;
+            --border:      #f5d9bc;
+            --border-soft: rgba(249,208,138,0.35);
+
+            --ink:      #0f0604;
+            --ink-mid:  #1e0e06;
+            --ink-soft: #4a2010;
+
+            --shadow-sm: 0 2px 14px rgba(139,58,32,0.10);
+            --shadow-md: 0 14px 48px rgba(139,58,32,0.18), 0 3px 14px rgba(139,58,32,0.10);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 44px 20px;
+            background: var(--bg);
+            background-image:
+                    radial-gradient(ellipse 80% 60% at 0%   0%,   rgba(249,208,138,0.30) 0%, transparent 55%),
+                    radial-gradient(ellipse 70% 55% at 100% 100%, rgba(139,58,32,0.20)   0%, transparent 55%),
+                    radial-gradient(ellipse 55% 65% at 100% 0%,   rgba(242,163,101,0.18) 0%, transparent 50%),
+                    radial-gradient(ellipse 50% 45% at 0%   100%, rgba(224,122,103,0.15) 0%, transparent 50%);
+            color: var(--ink);
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.032'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0;
+        }
+
+        .deco-circle {
+            position: fixed;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        .deco-circle.a {
+            width: 340px; height: 340px;
+            top: -120px; left: -120px;
+            background: radial-gradient(circle, rgba(249,208,138,0.22) 0%, transparent 70%);
+        }
+        .deco-circle.b {
+            width: 280px; height: 280px;
+            bottom: -100px; right: -80px;
+            background: radial-gradient(circle, rgba(139,58,32,0.18) 0%, transparent 70%);
+        }
+
+        .card {
+            width: 100%;
+            max-width: 520px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            box-shadow: var(--shadow-md), 0 0 0 1px rgba(242,163,101,0.14);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+            animation: riseIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+
+        @keyframes riseIn {
+            from { opacity: 0; transform: translateY(32px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0)   scale(1); }
+        }
+
+        .palette-bar {
+            height: 4px;
+            background: linear-gradient(90deg,
+            var(--brown1)  0%,
+            var(--warm2)   25%,
+            var(--warm4)   65%,
+            var(--warm5)   100%);
+        }
+
+        .head {
+            padding: 30px 34px 28px;
+            background: linear-gradient(135deg, var(--brown1) 0%, var(--warm2) 45%, var(--warm3) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .head::before {
+            content: '';
+            position: absolute; top: -90px; right: -90px;
+            width: 280px; height: 280px; border-radius: 50%;
+            background: rgba(255,255,255,0.09);
+        }
+        .head::after {
+            content: '';
+            position: absolute; bottom: -60px; left: 15%;
+            width: 220px; height: 220px; border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+        }
+
+        .head .studio-label {
+            position: relative; z-index: 1;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.65);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .head .studio-label::before {
+            content: '';
+            width: 26px; height: 1px;
+            background: rgba(255,255,255,0.50);
+        }
+
+        .head h1 {
+            position: relative; z-index: 1;
+            font-family: 'Playfair Display', serif;
+            font-size: 40px;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.05;
+        }
+        .head h1 em {
+            font-style: italic;
+            color: rgba(255,255,255,0.85);
+        }
+
+        .body {
+            padding: 32px 34px 36px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(242,163,101,0.06) 0%, transparent 35%);
+        }
+
+        .icon-wrap {
+            width: 76px; height: 76px;
+            border-radius: 22px;
+            margin: 0 auto 18px;
+            background: linear-gradient(135deg, rgba(249,208,138,0.25), rgba(242,163,101,0.18));
+            border: 1.5px solid rgba(242,163,101,0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 20px rgba(139,58,32,0.16);
+            position: relative;
+        }
+        .icon-wrap::before {
+            content: '';
+            position: absolute; inset: 6px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(249,208,138,0.18), rgba(242,163,101,0.10));
+        }
+        .checkmark {
+            position: relative; z-index: 1;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--warm2), var(--warm4));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(139,58,32,0.35);
+            animation: popIn 0.5s 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+        }
+        @keyframes popIn {
+            from { transform: scale(0); opacity: 0; }
+            to   { transform: scale(1); opacity: 1; }
+        }
+        .checkmark svg {
+            width: 18px; height: 18px;
+            stroke: #fff;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        .checkmark svg path {
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            animation: drawCheck 0.45s 0.65s ease forwards;
+        }
+        @keyframes drawCheck {
+            to { stroke-dashoffset: 0; }
+        }
+
+        .body h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 10px;
+        }
+
+        .divider {
+            width: 48px; height: 2px;
+            background: linear-gradient(90deg, var(--warm2), var(--warm4));
+            border-radius: 999px;
+            margin: 10px auto 16px;
+        }
+
+        .body p {
+            color: var(--ink-soft);
+            font-size: 14px;
+            line-height: 1.7;
+            max-width: 360px;
+            margin: 0 auto;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 9px 16px;
+            border-radius: 999px;
+            background: rgba(242,163,101,0.12);
+            border: 1px solid rgba(242,163,101,0.30);
+            font-size: 12px;
+            color: var(--warm2);
+            font-weight: 500;
+        }
+        .chip::before {
+            content: '';
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: var(--warm3);
+            box-shadow: 0 0 6px rgba(224,122,103,0.55);
+            animation: pulse 2s ease infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.6; transform: scale(0.85); }
+        }
+
+        .actions {
+            margin-top: 26px;
+            display: flex;
+            gap: 11px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            padding: 13px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            border: none;
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            user-select: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brown1) 0%, var(--warm3) 100%);
+            color: #fff;
+            box-shadow: 0 8px 24px rgba(139,58,32,0.32);
+            border: 1px solid rgba(0,0,0,0.08);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 34px rgba(139,58,32,0.40);
+        }
+
+        .btn-ghost {
+            background: rgba(250,238,224,0.60);
+            color: var(--ink-mid);
+            border: 1.5px solid var(--border);
+        }
+        .btn-ghost:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-sm);
+            background: rgba(250,238,224,0.90);
+        }
+
+        .foot {
+            padding: 14px 34px 16px;
+            border-top: 1px solid rgba(245,217,188,0.50);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: linear-gradient(180deg, transparent, rgba(250,238,224,0.22));
+        }
+        .foot span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 10px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(74,32,16,0.45);
+        }
+        .foot .dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: var(--warm4);
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body>
+<div class="deco-circle a"></div>
+<div class="deco-circle b"></div>
+
+<div class="card">
+    <div class="palette-bar"></div>
+
+    <div class="head">
+        <div class="studio-label">Lumière Studio</div>
+        <h1>Thank <em>you!</em></h1>
+    </div>
+
+    <div class="body">
+        <div class="icon-wrap">
+            <div class="checkmark">
+                <svg viewBox="0 0 24 24">
+                    <path d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+        </div>
+
+        <h2>Feedback Submitted</h2>
+        <div class="divider"></div>
+
+        <p>Your feedback has been saved successfully and will appear publicly once reviewed and approved by our team.</p>
+
+        <div class="chip">Pending admin approval</div>
+
+        <div class="actions">
+            <a class="btn btn-primary" th:href="@{/feedback/list}">
+                View Reviews <span style="font-size:14px;">→</span>
+            </a>
+            <a class="btn btn-ghost" th:href="@{/feedback/add}">
+                Add Another <span style="font-size:13px;">✦</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="foot">
+        <span>Lumière Studio</span>
+        <div class="dot"></div>
+        <span>Customer Experience</span>
+    </div>
+</div>
+</body>
+</html>

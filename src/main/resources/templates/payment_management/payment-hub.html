@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payment Management | Photo Studio</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --dark: #2C1810;
+      --burgundy: #6B2737;
+      --gold: #C5973E;
+      --cream: #F5ECD7;
+      --ivory: #FFFBF2;
+      --olive: #6B7F5E;
+    }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--cream);
+      color: var(--dark);
+      padding-top: 72px;
+    }
+
+    h1, h2, h3, .navbar-brand {
+      font-family: 'Playfair Display', serif;
+    }
+
+    .navbar-payments {
+      background: var(--dark);
+      border-bottom: 3px solid var(--gold);
+    }
+
+    .navbar-payments .nav-link {
+      color: rgba(255,251,242,.75) !important;
+    }
+
+    .navbar-payments .nav-link:hover {
+      color: var(--gold) !important;
+    }
+
+    .section-card {
+      background: var(--ivory);
+      border-radius: 14px;
+      border: 1px solid rgba(197, 151, 62, .2);
+      box-shadow: 0 4px 18px rgba(44, 24, 16, .06);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      color: var(--dark);
+      border-bottom: 2px solid var(--gold);
+      padding-bottom: .5rem;
+      margin-bottom: 1.25rem;
+      font-size: 1.15rem;
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--burgundy), #8B3A4A);
+      color: var(--ivory);
+      border: 1px solid var(--gold);
+    }
+
+    .btn-gold:hover {
+      color: #fff;
+      filter: brightness(1.05);
+    }
+
+    .detail-panel {
+      border-left: 4px solid var(--olive);
+    }
+
+    .readonly-box {
+      background: #f8f4ea;
+      border: 1px solid rgba(44,24,16,.10);
+      border-radius: 10px;
+      padding: 10px 12px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+    }
+
+    .amount-big {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--burgundy);
+    }
+
+    .quick-fill-btn {
+      transition: all 0.2s ease;
+    }
+
+    .quick-fill-btn.active-mode {
+      background: linear-gradient(135deg, var(--burgundy), #8B3A4A);
+      color: var(--ivory);
+      border-color: var(--gold);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+  </style>
+</head>
+<body th:attr="data-pay-balance-open=${payBalanceOpen}">
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-payments fixed-top px-3">
+  <div class="container-fluid">
+    <span class="navbar-brand"><span class="text-warning">&#10040;</span> Payment center</span>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navMain">
+      <ul class="navbar-nav ms-auto gap-lg-2">
+
+        <li class="nav-item" th:if="${bookingPaymentMode and bookingForPayment != null and detailPayment == null}">
+          <a class="nav-link" href="#booking-payment">
+            <i class="fas fa-credit-card me-1"></i>Booking payment
+          </a>
+        </li>
+
+        <li class="nav-item" th:if="${showPayBalanceSection and detailPayment == null}">
+          <a class="nav-link" href="#pay-balance">
+            <i class="fas fa-money-bill-wave me-1"></i>Pay balance
+          </a>
+        </li>
+
+        <li class="nav-item" th:if="${!isAdmin and detailPayment == null}">
+          <a class="nav-link" href="#my-payments">
+            <i class="fas fa-user me-1"></i>My payments
+          </a>
+        </li>
+
+        <li class="nav-item" th:if="${#authentication == null or !#authentication.authenticated}">
+          <a class="nav-link" th:href="@{/auth/login}">
+            <i class="fas fa-lock me-1"></i>Login
+          </a>
+        </li>
+
+        <li class="nav-item" th:if="${#authentication != null and #authentication.authenticated}">
+          <a class="nav-link" th:href="@{/}">
+            <i class="fas fa-home me-1"></i>Home
+          </a>
+        </li>
+
+        <li class="nav-item" th:if="${isAdmin}">
+          <form th:action="@{/logout}" method="post" class="d-inline">
+            <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+            <button type="submit" class="nav-link btn btn-link text-white text-decoration-none border-0 p-0" style="background:none;">
+              <i class="fas fa-sign-out-alt me-1"></i>Log out
+            </button>
+          </form>
+        </li>
+
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container pb-5" id="main-content">
+
+  <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+    <span th:text="${error}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div id="successMessage"
+       th:if="${successAlert}"
+       class="alert alert-success alert-dismissible fade show">
+    <span th:text="${successAlert}"></span>
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+
+  <div th:if="${receiptPaymentId != null}" class="alert alert-info" role="status">
+    <p class="mb-2 fw-semibold">Payment completed successfully</p>
+    <p class="small mb-3">
+      Payment #<span th:text="${receiptPaymentId}"></span> was saved successfully.
+    </p>
+
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-sm btn-primary"
+         th:href="@{/payments/receipt/{id}(id=${receiptPaymentId})}">
+        <i class="fas fa-file-pdf me-1"></i>Receipt PDF
+      </a>
+
+      <a class="btn btn-sm btn-outline-dark"
+         th:if="${bookingForPayment != null}"
+         th:href="@{/booking/track/{id}(id=${bookingForPayment.id})}">
+        <i class="fas fa-search me-1"></i>Track Booking
+      </a>
+    </div>
+  </div>
+
+  <div th:if="${detailPayment != null}" id="payment-detail" class="section-card detail-panel mb-4">
+    <h2 class="h4 section-title mb-3"><i class="fas fa-receipt me-2"></i>Payment #<span th:text="${detailPayment.id}"></span></h2>
+
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <h3 class="h6 text-muted text-uppercase small mb-3">Booking</h3>
+        <p class="mb-1 small text-muted">Selected package</p>
+        <p class="fw-semibold mb-3" th:text="${detailPayment.packageCode != null ? detailPayment.packageCode.displayName : 'Booking-based payment'}"></p>
+        <p class="mb-1 small text-muted">Event date</p>
+        <p class="mb-3" th:text="${detailPayment.eventDate != null && !detailPayment.eventDate.isEmpty() ? detailPayment.eventDate : '—'}"></p>
+        <p class="mb-1 small text-muted">Reservation ref</p>
+        <p class="mb-3" th:text="${detailPayment.bookingId != null && !detailPayment.bookingId.isEmpty() ? detailPayment.bookingId : '—'}"></p>
+      </div>
+
+      <div class="col-lg-4">
+        <h3 class="h6 text-muted text-uppercase small mb-3">Amounts</h3>
+        <p class="mb-1 small text-muted">Order total</p>
+        <p class="mb-2 fw-semibold" th:text="${'LKR ' + #numbers.formatDecimal(detailPayment.totalAmount != null ? detailPayment.totalAmount : 0, 1, 'COMMA', 2, 'POINT')}"></p>
+        <p class="mb-1 small text-muted">Amount paid</p>
+        <p class="mb-2 text-success fw-semibold" th:text="${'LKR ' + #numbers.formatDecimal(detailPayment.amountPaid != null ? detailPayment.amountPaid : 0, 1, 'COMMA', 2, 'POINT')}"></p>
+        <p class="mb-1 small text-muted">Remaining balance</p>
+        <p class="mb-2 text-danger fw-semibold" th:text="${'LKR ' + #numbers.formatDecimal(detailBalance != null ? detailBalance : 0, 1, 'COMMA', 2, 'POINT')}"></p>
+      </div>
+
+      <div class="col-lg-4">
+        <h3 class="h6 text-muted text-uppercase small mb-3">Status</h3>
+        <p class="mb-1 small text-muted">Payment status</p>
+        <p class="mb-2">
+          <span th:if="${detailPayment.paymentStatus != null and detailPayment.paymentStatus.name() == 'COMPLETED'}" class="badge bg-success" th:text="${detailPayment.paymentStatus}"></span>
+          <span th:if="${detailPayment.paymentStatus != null and detailPayment.paymentStatus.name() == 'ADVANCE_PAID'}" class="badge bg-warning text-dark" th:text="${detailPayment.paymentStatus}"></span>
+          <span th:if="${detailPayment.paymentStatus == null}" class="badge bg-secondary">—</span>
+        </p>
+        <p class="mb-1 small text-muted">Method</p>
+        <p class="mb-0" th:text="${detailPayment.paymentMethod != null ? detailPayment.paymentMethod : '—'}"></p>
+      </div>
+    </div>
+
+    <div class="d-flex flex-wrap gap-2 mt-3">
+      <a class="btn btn-sm btn-primary" th:href="@{/payments/receipt/{id}(id=${detailPayment.id})}">
+        <i class="fas fa-file-pdf me-1"></i>Receipt PDF
+      </a>
+      <a class="btn btn-sm btn-outline-dark" th:if="${isAdmin}" th:href="@{/admin/users}">
+        Admin Dashboard
+      </a>
+    </div>
+  </div>
+
+  <section id="booking-payment" class="section-card" th:if="${bookingPaymentMode and bookingForPayment != null and detailPayment == null}">
+    <h2 class="h4 section-title"><i class="fas fa-credit-card me-2"></i>Pay for booking #<span th:text="${bookingForPayment.id}"></span></h2>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <label class="form-label">Customer name</label>
+        <div class="readonly-box" th:text="${bookingForPayment.customerName}"></div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Email</label>
+        <div class="readonly-box" th:text="${bookingForPayment.customerEmail}"></div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Phone</label>
+        <div class="readonly-box" th:text="${bookingForPayment.customerPhone}"></div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Booking ID</label>
+        <div class="readonly-box" th:text="${bookingForPayment.id}"></div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Selected package</label>
+        <div class="readonly-box" th:text="${bookingForPayment.packageName != null ? bookingForPayment.packageName : 'Not available'}"></div>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">Total payable</label>
+        <div class="readonly-box amount-big" th:text="${'LKR ' + #numbers.formatDecimal(bookingTotal != null ? bookingTotal : 0, 1, 'COMMA', 2, 'POINT')}"></div>
+      </div>
+    </div>
+
+    <form th:action="@{/payments/process}" method="post" id="bookingPaymentForm">
+      <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+      <input type="hidden" name="bookingId" th:value="${checkoutDraft != null ? checkoutDraft.bookingId : bookingForPayment.id}">
+      <input type="hidden" name="fullName" th:value="${checkoutDraft != null ? checkoutDraft.fullName : bookingForPayment.customerName}">
+      <input type="hidden" name="email" th:value="${checkoutDraft != null ? checkoutDraft.email : bookingForPayment.customerEmail}">
+      <input type="hidden" name="phoneNumber" th:value="${checkoutDraft != null ? checkoutDraft.phoneNumber : bookingForPayment.customerPhone}">
+      <input type="hidden" name="eventDate" th:value="${checkoutDraft != null ? checkoutDraft.eventDate : bookingForPayment.eventDate}">
+      <input type="hidden" name="paymentPlan" id="bookingPaymentPlanField" th:value="${checkoutDraft != null && checkoutDraft.paymentPlan != null ? checkoutDraft.paymentPlan : 'FULL'}">
+      <input type="hidden" id="bookingTotalValue" th:value="${bookingTotal}">
+
+      <div class="row g-3 align-items-end">
+        <div class="col-md-4">
+          <label class="form-label">Payment method *</label>
+          <select name="paymentMethod" class="form-select" required>
+            <option value="CARD" th:selected="${checkoutDraft != null && checkoutDraft.paymentMethod == 'CARD'}">Card (label only)</option>
+            <option value="ONLINE" th:selected="${checkoutDraft != null && checkoutDraft.paymentMethod == 'ONLINE'}">Bank transfer</option>
+          </select>
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label">Amount paying now (LKR) *</label>
+          <input type="number"
+                 step="0.01"
+                 min="0.01"
+                 th:attr="max=${bookingTotal}"
+                 id="bookingPayAmt"
+                 name="paymentAmount"
+                 class="form-control"
+                 required
+                 th:value="${checkoutDraft != null && checkoutDraft.paymentAmount != null ? checkoutDraft.paymentAmount : bookingTotal}">
+        </div>
+
+        <div class="col-md-4">
+          <label class="form-label d-block">Quick fill</label>
+          <div class="btn-group w-100">
+            <button type="button"
+                    id="btnFullMode"
+                    class="btn btn-outline-dark btn-sm quick-fill-btn"
+                    onclick="setBookingMode(1.0, 'FULL', this)">
+              Full
+            </button>
+            <button type="button"
+                    id="btnAdvanceMode"
+                    class="btn btn-outline-dark btn-sm quick-fill-btn"
+                    onclick="setBookingMode(0.2, 'ADVANCE', this)">
+              20% advance
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center gap-3 mt-4 flex-wrap">
+        <div>
+          <div class="small text-muted">This amount comes from the cart and booking summary. Promotions and discounts are already included.</div>
+          <div class="fw-semibold mt-2">Booking total: <span class="text-danger" th:text="${'LKR ' + #numbers.formatDecimal(bookingTotal != null ? bookingTotal : 0, 1, 'COMMA', 2, 'POINT')}"></span></div>
+        </div>
+        <button type="submit" class="btn btn-gold px-4"><i class="fas fa-check me-1"></i>Save payment</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="pay-balance" class="section-card border border-secondary border-opacity-25"
+           th:if="${showPayBalanceSection and detailPayment == null}"
+           th:classappend="${payBalanceOpen} ? 'border-warning border-2' : ''">
+    <h2 class="h4 section-title"><i class="fas fa-money-bill-wave me-2"></i>Pay remaining balance</h2>
+    <p class="small text-muted">Use this after you paid an <strong>advance</strong>. Enter the <strong>same reservation ID</strong> and <strong>same email</strong> as on your first payment. You must pay the <strong>full remaining balance</strong> in one step.</p>
+
+    <div id="balanceLookupStep" class="row g-3 align-items-end mb-3">
+      <div class="col-md-4">
+        <label class="form-label" for="balBookingId">Reservation ID *</label>
+        <input type="text" id="balBookingId" class="form-control" maxlength="120" autocomplete="off"
+               th:value="${prefillBalanceBookingId}">
+      </div>
+      <div class="col-md-5">
+        <label class="form-label" for="balEmail">Email (on file) *</label>
+        <input type="email" id="balEmail" class="form-control" autocomplete="email"
+               th:value="${prefillBalanceEmail}">
+      </div>
+      <div class="col-md-3">
+        <button type="button" class="btn btn-dark w-100" id="btnLookupBalance">Look up balance</button>
+      </div>
+      <div class="col-12"><p id="balanceLookupError" class="text-danger small mb-0 d-none"></p></div>
+    </div>
+
+    <div id="balancePayStep" class="d-none border-top pt-3">
+      <p class="small mb-2"><span class="text-muted">Package:</span> <span id="balPkgName"></span></p>
+      <p class="mb-2">Amount already paid: <strong id="balPaid"></strong></p>
+      <p class="fw-semibold mb-3">Balance due: <span class="text-danger" id="balDue"></span></p>
+
+      <form th:action="@{/payments/pay-balance}" method="post" id="balancePayForm" class="row g-3">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+        <input type="hidden" name="paymentId" id="balPaymentId">
+
+        <div class="col-md-6">
+          <label class="form-label">Reservation ID</label>
+          <input type="text" name="bookingId" id="balBookingIdRo" class="form-control" readonly tabindex="-1">
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" id="balEmailRo" class="form-control" readonly tabindex="-1">
+        </div>
+        <div class="col-md-8 col-lg-6">
+          <label class="form-label">Amount to pay (full balance)</label>
+          <input type="hidden" name="balanceAmount" id="balAmountHidden" value="">
+          <p class="form-control fw-semibold border rounded px-3 py-2 bg-light mb-1" id="balAmountDisplay">— Look up balance first —</p>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label" for="balPaymentMethod">Method *</label>
+          <select id="balPaymentMethod" name="balancePaymentMethod" class="form-select" required>
+            <option value="ONLINE">Bank transfer</option>
+            <option value="CARD">Card (label only)</option>
+          </select>
+        </div>
+        <div class="col-md-12">
+          <label class="form-label">Note for studio</label>
+          <textarea name="customerNote" class="form-control" rows="2" maxlength="500" placeholder="e.g. Transfer ref ABC123 / slip emailed to studio"></textarea>
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-gold">Submit balance payment</button>
+          <button type="button" class="btn btn-outline-secondary ms-2" id="btnBalanceReset">Start over</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <section id="my-payments" class="section-card" th:if="${!isAdmin and detailPayment == null}">
+    <h2 class="h4 section-title"><i class="fas fa-envelope me-2"></i>My payments (by email)</h2>
+    <p class="small text-muted">Enter the email you used when paying to look up your records.</p>
+    <form th:action="@{/payments}" method="get" class="row g-2 mb-3">
+      <div class="col-md-6">
+        <input type="email" name="myEmail" class="form-control" placeholder="your@email.com" th:value="${myEmail != null ? myEmail : ''}">
+      </div>
+      <div class="col-auto">
+        <button type="submit" class="btn btn-dark">Find</button>
+      </div>
+    </form>
+
+    <div class="table-responsive" th:if="${myEmail != null}">
+      <table class="table table-sm">
+        <thead>
+        <tr><th>#</th><th>Date</th><th>Amount Paid</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${myPayments}">
+          <td th:text="${p.id}"></td>
+          <td th:text="${p.paymentDate}"></td>
+          <td th:text="${p.amountPaid}"></td>
+          <td th:text="${p.paymentStatus}"></td>
+          <td class="text-nowrap">
+            <a class="btn btn-sm btn-outline-primary" th:href="@{/payments/receipt/{id}(id=${p.id})}">Receipt PDF</a>
+          </td>
+        </tr>
+        <tr th:if="${#lists.isEmpty(myPayments)}">
+          <td colspan="5" class="text-muted">No payments for this email.</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  function formatLkr(n) {
+    const x = parseFloat(n);
+    if (isNaN(x)) return '—';
+    return 'LKR ' + x.toLocaleString('en-LK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function setBookingMode(pct, plan, clickedButton) {
+    const total = parseFloat(document.getElementById('bookingTotalValue')?.value || '0');
+    const amt = document.getElementById('bookingPayAmt');
+    const planField = document.getElementById('bookingPaymentPlanField');
+
+    if (!isNaN(total) && total > 0 && amt) {
+      amt.value = (total * pct).toFixed(2);
+    }
+
+    if (planField) {
+      planField.value = plan || 'FULL';
+    }
+
+    document.querySelectorAll('.quick-fill-btn').forEach(btn => {
+      btn.classList.remove('active-mode');
+    });
+
+    if (clickedButton) {
+      clickedButton.classList.add('active-mode');
+    }
+  }
+
+  let pendingFormSubmit = null;
+
+  document.getElementById('bookingPaymentForm')?.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const total = parseFloat(document.getElementById('bookingTotalValue')?.value || '0');
+    const amt = parseFloat(document.getElementById('bookingPayAmt')?.value || '0');
+
+    if (isNaN(amt) || amt <= 0) {
+      alert('Please enter a valid payment amount.');
+      return;
+    }
+
+    if (!isNaN(total) && amt > total) {
+      alert('Amount cannot exceed the booking total.');
+      return;
+    }
+
+    // 👉 SHOW MODAL
+    document.getElementById('modalAmountText').innerText =
+            "Are you sure?\nAmount: " + formatLkr(amt);
+
+    document.getElementById('paymentModal').style.display = 'flex';
+
+    pendingFormSubmit = this;
+  });
+
+  function closePaymentModal() {
+    document.getElementById('paymentModal').style.display = 'none';
+  }
+
+  function confirmPaymentSubmit() {
+    closePaymentModal();
+    if (pendingFormSubmit) {
+      pendingFormSubmit.submit();
+    }
+
+  };
+
+  function showBalanceLookupError(msg) {
+    const el = document.getElementById('balanceLookupError');
+    if (!el) return;
+    if (msg) {
+      el.textContent = msg;
+      el.classList.remove('d-none');
+    } else {
+      el.textContent = '';
+      el.classList.add('d-none');
+    }
+  }
+
+  document.getElementById('btnLookupBalance')?.addEventListener('click', async function () {
+    const bid = document.getElementById('balBookingId').value.trim();
+    const em = document.getElementById('balEmail').value.trim();
+    showBalanceLookupError('');
+
+    try {
+      const res = await fetch('/api/payments/lookup-balance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ bookingId: bid, email: em })
+      });
+
+      const contentType = res.headers.get('content-type') || '';
+      const data = contentType.includes('application/json')
+              ? await res.json()
+              : { error: res.status === 403 ? 'Access denied. Please log in again.' : 'Could not look up balance.' };
+
+      if (!res.ok) {
+        showBalanceLookupError(data.error || 'Could not look up balance.');
+        return;
+      }
+
+      document.getElementById('balPaymentId').value = data.paymentId;
+      document.getElementById('balBookingIdRo').value = bid;
+      document.getElementById('balEmailRo').value = em;
+      document.getElementById('balPkgName').textContent = data.packageName || '—';
+      document.getElementById('balPaid').textContent = formatLkr(data.amountPaid);
+      document.getElementById('balDue').textContent = formatLkr(data.balance);
+
+      const hidden = document.getElementById('balAmountHidden');
+      const display = document.getElementById('balAmountDisplay');
+      const bal = parseFloat(data.balance);
+
+      if (!isNaN(bal) && bal > 0) {
+        hidden.value = bal.toFixed(2);
+        display.textContent = formatLkr(bal);
+      } else {
+        hidden.value = '';
+        display.textContent = 'Nothing due — no balance payment needed.';
+      }
+
+      document.getElementById('balanceLookupStep').classList.add('d-none');
+      document.getElementById('balancePayStep').classList.remove('d-none');
+    } catch (e) {
+      showBalanceLookupError('Network error.');
+    }
+  });
+
+  document.getElementById('btnBalanceReset')?.addEventListener('click', function () {
+    document.getElementById('balancePayStep').classList.add('d-none');
+    document.getElementById('balanceLookupStep').classList.remove('d-none');
+
+    const hidden = document.getElementById('balAmountHidden');
+    const display = document.getElementById('balAmountDisplay');
+    if (hidden) hidden.value = '';
+    if (display) display.textContent = '— Look up balance first —';
+
+    showBalanceLookupError('');
+  });
+
+  document.getElementById('balancePayForm')?.addEventListener('submit', function (e) {
+    const hidden = document.getElementById('balAmountHidden');
+    const v = hidden ? parseFloat(hidden.value) : NaN;
+    if (!hidden || hidden.value === '' || isNaN(v) || v <= 0) {
+      e.preventDefault();
+      showBalanceLookupError('Look up your balance first. If nothing is due, you do not need to pay here.');
+    }
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    const currentPlan = document.getElementById('bookingPaymentPlanField')?.value;
+    if (currentPlan === 'ADVANCE') {
+      document.getElementById('btnAdvanceMode')?.classList.add('active-mode');
+    } else {
+      document.getElementById('btnFullMode')?.classList.add('active-mode');
+    }
+
+    if (document.body.getAttribute('data-pay-balance-open') === 'true') {
+      document.getElementById('pay-balance')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+
+
+  setTimeout(() => {
+    const msg = document.getElementById('successMessage');
+    if (msg) {
+      msg.style.transition = "opacity 0.5s";
+      msg.style.opacity = "0";
+      setTimeout(() => msg.remove(), 500);
+    }
+  }, 15000);
+
+
+</script>
+
+<!-- Payment Confirm Modal -->
+<div id="paymentModal" style="
+  display:none;
+  position:fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background:rgba(0,0,0,0.6);
+  z-index:2000;
+  align-items:center;
+  justify-content:center;
+">
+  <div style="
+    background:#0d6efd;
+    color:white;
+    padding:25px;
+    border-radius:12px;
+    width:350px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  ">
+    <h5 style="margin-bottom:10px;">Confirm Payment</h5>
+    <p id="modalAmountText"></p>
+
+    <div style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
+      <button onclick="closePaymentModal()" class="btn btn-light btn-sm">Cancel</button>
+      <button onclick="confirmPaymentSubmit()" class="btn btn-success btn-sm">Yes</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

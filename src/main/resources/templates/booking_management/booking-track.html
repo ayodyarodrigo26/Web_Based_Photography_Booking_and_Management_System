@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Track Booking | Photography System</title>
+
+    <style>
+        :root{
+            --paper:#f6f0e6;
+            --ink:#2b1f1a;
+            --sepia:#a67c52;
+            --accent:#6e3f24;
+            --soft:#efe2cf;
+            --danger:#b00020;
+            --shadow: 0 18px 40px rgba(0,0,0,.18);
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;
+            font-family: ui-serif, Georgia, "Times New Roman", serif;
+            color:var(--ink);
+            background:
+                    radial-gradient(circle at 20% 10%, rgba(255,255,255,.7), transparent 45%),
+                    radial-gradient(circle at 80% 20%, rgba(255,255,255,.45), transparent 40%),
+                    linear-gradient(135deg, #efe2cf, #dac3a2);
+            min-height:100vh;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            padding:26px;
+        }
+        .card{
+            width:min(860px, 100%);
+            background:var(--paper);
+            border:1px solid rgba(43,31,26,.18);
+            border-radius:18px;
+            box-shadow:var(--shadow);
+            overflow:hidden;
+        }
+        .top{
+            padding:22px 24px 14px;
+            position:relative;
+        }
+        .stamp{
+            position:absolute;
+            right:18px;
+            top:18px;
+            border:2px dashed rgba(166,124,82,.55);
+            border-radius:14px;
+            padding:10px 12px;
+            font-weight:700;
+            letter-spacing:.14em;
+            text-transform:uppercase;
+            font-size:12px;
+            color:rgba(110,63,36,.9);
+            transform: rotate(3deg);
+        }
+        h1{margin:0 0 6px; font-size:34px;}
+        .sub{margin:0; color:rgba(43,31,26,.75); line-height:1.45}
+
+        /* ✅ Professional Error Notification Style */
+        .error-container {
+            margin: 0 24px 18px;
+            background: #fff0f0;
+            border-left: 5px solid var(--danger);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .error-icon { color: var(--danger); font-size: 20px; font-weight: bold; }
+        .error-msg { font-size: 14px; color: var(--ink); line-height: 1.4; }
+
+        .content{
+            padding:18px 24px 24px;
+            display:grid;
+            grid-template-columns: 1fr 1fr;
+            gap:18px;
+            border-top:1px solid rgba(43,31,26,.12);
+            background: linear-gradient(180deg, #f8f3ea, #f2e5d0);
+        }
+        .panel{
+            background:#fffdf8;
+            border:1px solid rgba(43,31,26,.16);
+            border-radius:16px;
+            padding:16px;
+        }
+        label{
+            display:block;
+            font-size:13px;
+            letter-spacing:.08em;
+            text-transform:uppercase;
+            color:rgba(43,31,26,.75);
+            margin-bottom:8px;
+        }
+        input{
+            width:100%;
+            padding:14px 12px;
+            border-radius:12px;
+            border:1px solid rgba(43,31,26,.25);
+            background:#fffdf8;
+            font-size:16px;
+            outline:none;
+            transition:.15s;
+        }
+        input:focus{
+            border-color: rgba(110,63,36,.65);
+            box-shadow:0 0 0 4px rgba(110,63,36,.12);
+        }
+        .btnRow{
+            margin-top:12px;
+            display:flex;
+            gap:10px;
+            flex-wrap:wrap;
+            align-items:center;
+        }
+        button{
+            border:none;
+            border-radius:14px;
+            padding:12px 16px;
+            cursor:pointer;
+            font-weight:700;
+            letter-spacing:.04em;
+            background: linear-gradient(180deg, #8b5b36, #6e3f24);
+            color:#fff;
+            box-shadow: 0 10px 22px rgba(110,63,36,.35);
+            transition: transform 0.2s;
+        }
+        button:active { transform: scale(0.98); }
+
+        .ghost{
+            background:transparent;
+            border:1px solid rgba(43,31,26,.25);
+            color:var(--ink);
+            box-shadow:none;
+        }
+        .tiny{font-size:12px; color:rgba(43,31,26,.7)}
+        .help ul{margin:0; padding-left:18px; line-height:1.65; color:rgba(43,31,26,.8)}
+        a{color:var(--accent); text-decoration:none; font-weight:700}
+        a:hover{text-decoration:underline}
+
+        @media (max-width:860px){
+            .content{grid-template-columns:1fr}
+            .stamp{position:static; display:inline-block; margin-bottom:12px}
+        }
+    </style>
+</head>
+
+<body>
+<div class="card">
+    <div class="top">
+        <div class="stamp">Track</div>
+        <h1>Track Your Booking</h1>
+        <p class="sub">
+            Review the current status of your reservation using your unique reference ID.
+        </p>
+    </div>
+
+    <div th:if="${error}" class="error-container">
+        <div class="error-icon">⚠</div>
+        <div class="error-msg" th:text="${error}">Error message goes here.</div>
+    </div>
+
+    <div class="content">
+        <div class="panel">
+            <form id="trackForm">
+                <label for="bookingId">Reference Number</label>
+                <input id="bookingId" type="number" min="1" placeholder="Enter your Booking ID..." required>
+
+                <div class="btnRow">
+                    <button type="submit">Track Booking</button>
+                    <button type="reset" class="ghost">Clear</button>
+                    <span class="tiny" id="hint"></span>
+                </div>
+            </form>
+
+            <div class="tiny" style="margin-top:15px;">
+                Forgotten your ID? Check your initial confirmation summary or reach out to our team.
+            </div>
+
+            <div style="margin-top:12px;">
+                <a th:href="@{/booking/new}">← Return to booking form</a>
+            </div>
+        </div>
+
+        <div class="panel help">
+            <h3 style="margin:0 0 12px; font-size: 18px;">Dashboard Access</h3>
+            <p class="tiny" style="margin-bottom: 10px;">By entering your ID, you can monitor:</p>
+            <ul>
+                <li>Current Status: <b>PENDING</b>, <b>APPROVED</b>, or <b>REJECTED</b></li>
+                <li>Reserved Event Schedule & Type</li>
+                <li>Contact details for your Professional Photographer</li>
+            </ul>
+
+            <div style="margin-top:18px;" class="tiny">
+                <i>Note: Status updates are processed manually by our studio administrators.</i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const form = document.getElementById("trackForm");
+    const idInput = document.getElementById("bookingId");
+    const hint = document.getElementById("hint");
+
+    function validate(){
+        const v = idInput.value;
+        if(!v){
+            hint.textContent = "";
+            return false;
+        }
+        if(Number(v) < 1){
+            hint.textContent = "⚠ Invalid ID Format";
+            hint.style.color = "var(--danger)";
+            return false;
+        }
+        hint.textContent = "✓ ID Format Valid";
+        hint.style.color = "rgba(43,31,26,.7)";
+        return true;
+    }
+
+    idInput.addEventListener("input", validate);
+
+    form.addEventListener("submit", function (e) {
+        e.preventDefault();
+        if(!validate()){
+            return;
+        }
+        const id = idInput.value;
+        // This will trigger the @GetMapping("/track/{id}") in your controller
+        window.location.href = "/booking/track/" + id;
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Create Admin</title>
+  <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="container">
+  <div class="card mid">
+
+    <div class="header" style="margin-bottom:14px;">
+      <h1 style="font-size:32px;">Create Admin Account</h1>
+      <p>Fill details to create a new admin</p>
+    </div>
+
+    <form th:action="@{/admin/register}"
+          th:object="${form}"
+          method="post"
+          onsubmit="return validatePassword()">
+
+      <div class="row">
+        <div>
+          <label>First Name</label>
+          <input th:field="*{firstName}" placeholder="First name" required>
+        </div>
+        <div>
+          <label>Last Name</label>
+          <input th:field="*{lastName}" placeholder="Last name" required>
+        </div>
+      </div>
+
+      <label>Email</label>
+      <input th:field="*{email}" id="email" placeholder="Email" required>
+      <p id="emailError" style="color:red;"></p>
+      <p th:if="${error}" th:text="${error}" style="color:red;"></p>
+
+      <label>Phone Number</label>
+      <input th:field="*{phone}" id="phone" placeholder="Phone number">
+      <p id="phoneError" style="color:red;"></p>
+
+      <label>Password</label>
+      <div style="position: relative;">
+        <input th:field="*{password}" type="password" id="password" placeholder="Password" required style="width:100%;">
+        <span onclick="togglePassword()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+      </div>
+      <p id="passwordLengthError" style="color:red;"></p>
+      <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:red;"></p>
+
+      <label>Confirm Password</label>
+      <div style="position: relative;">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required style="width:100%;">
+        <span onclick="togglePassword()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">👁️</span>
+      </div>
+
+      <p id="errorMsg" style="color:red;"></p>
+
+      <button class="btn btn-danger" type="submit">Create Admin</button>
+    </form>
+
+    <div class="links" style="margin-top:14px;">
+      ← <a th:href="@{/admin/users}">Back to Dashboard</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function validatePassword() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirmPassword = document.getElementById("confirmPassword").value;
+    const phone = document.getElementById("phone").value;
+    const passwordLengthError = document.getElementById("passwordLengthError");
+    const emailError = document.getElementById("emailError");
+    const error = document.getElementById("errorMsg");
+    const phoneError = document.getElementById("phoneError");
+
+    let valid = true;
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      emailError.textContent = "Please enter a valid email address";
+      valid = false;
+    } else {
+      emailError.textContent = "";
+    }
+
+    if (password !== confirmPassword) {
+      error.textContent = "Passwords do not match";
+      valid = false;
+    } else {
+      error.textContent = "";
+    }
+
+    if (password.length < 5) {
+      passwordLengthError.textContent = "Password should contain at least five characters";
+      valid = false;
+    } else {
+      passwordLengthError.textContent = "";
+    }
+
+    const phonePattern = /^0[0-9]{9}$/;
+    if (phone !== "" && !phonePattern.test(phone)) {
+      phoneError.textContent = "Please enter a valid phone number";
+      valid = false;
+    } else {
+      phoneError.textContent = "";
+    }
+
+    return valid;
+  }
+
+  function togglePassword() {
+    const password = document.getElementById("password");
+    const confirmPassword = document.getElementById("confirmPassword");
+
+    if (password.type === "password") {
+      password.type = "text";
+      confirmPassword.type = "text";
+    } else {
+      password.type = "password";
+      confirmPassword.type = "password";
+    }
+  }
+</script>
+
+</body>
+</html>

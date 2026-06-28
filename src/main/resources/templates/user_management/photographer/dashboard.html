@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Photographer Dashboard</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card wide">
+
+        <div class="topbar">
+            <div>
+                <h2>Welcome, <span th:text="${user.fullName}">Photographer</span> 📷</h2>
+                <p>Your photographer dashboard</p>
+            </div>
+
+            <div style="display:flex; gap:10px; align-items:center;">
+                <a th:href="@{/user/profile}" class="btn-outline" style="text-decoration:none;">Profile</a>
+                <form th:action="@{/logout}" method="post" style="margin:0;">
+                    <button type="submit" class="btn-outline">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="alert info">
+            Role: <b th:text="${user.role.name}">ROLE_PHOTOGRAPHER</b>
+            &nbsp; • &nbsp;
+            Email: <b th:text="${user.email}">email</b>
+        </div>
+
+        <div class="grid-3">
+            <div class="role-card">
+                <span class="badge">👤 ACCOUNT</span>
+                <div class="role-title">Manage Profile</div>
+                <p class="role-sub">Update your name and phone number</p>
+                <a th:href="@{/user/profile}" style="text-decoration:none;">
+                    <button class="btn btn-photographer" type="button">Go to Profile</button>
+                </a>
+            </div>
+
+            <div class="role-card">
+                <span class="badge">📅 BOOKINGS</span>
+                <div class="role-title">My Bookings</div>
+                <p class="role-sub">Check all bookings</p>
+                <a th:href="@{/photographer/bookings}" style="text-decoration:none;">
+                    <button class="btn btn-photographer" type="button">
+                        View Bookings
+                    </button>
+                </a>
+            </div>
+
+            <div class="role-card">
+                <span class="badge">🗑️ DANGER</span>
+                <div class="role-title">Delete Account</div>
+                <p class="role-sub">Permanently remove your account</p>
+                <a th:href="@{/user/delete}" style="text-decoration:none;">
+                    <button class="btn btn-danger" type="button">Delete Account</button>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+</body>
+</html>

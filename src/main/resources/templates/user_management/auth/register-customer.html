@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Register Customer</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+<body>
+
+<div class="container">
+    <div class="card mid">
+
+        <div class="header">
+            <h1>Register as Customer</h1>
+            <p>Create your customer account</p>
+        </div>
+
+        <form th:action="@{/auth/register/customer}"
+              th:object="${form}"
+              method="post"
+              onsubmit="return validatePassword()"
+              novalidate>
+
+            <div class="row">
+                <div>
+                    <label>First Name</label>
+                    <input type="text" th:field="*{firstName}" required>
+                </div>
+                <div>
+                    <label>Last Name</label>
+                    <input type="text" th:field="*{lastName}" required>
+                </div>
+            </div>
+
+            <label>Email</label>
+            <input type="text" th:field="*{email}" id="email" required>
+            <p id="emailError" style="color:red;"></p>
+            <p th:if="${error}" th:text="${error}" style="color:red;"></p>
+
+            <label>Phone Number</label>
+            <input type="text" th:field="*{phone}" id="phone">
+            <p id="phoneError" style="color:red;"></p>
+
+            <label>Password</label>
+            <div style="position: relative;">
+                <input type="password" th:field="*{password}" id="password" required style="width:100%;">
+                <span onclick="togglePassword()"
+                      style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
+                      👁️
+                </span>
+            </div>
+            <p id="passwordLengthError" style="color:red;"></p>
+
+            <label>Confirm Password</label>
+            <div style="position: relative;">
+                <input type="password" id="confirmPassword" placeholder="Confirm Password" required style="width:100%;">
+                <span onclick="togglePassword()"
+                      style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer;">
+                      👁️
+                </span>
+            </div>
+
+            <p id="errorMsg" style="color:red;"></p>
+
+            <button type="submit" class="btn btn-customer">Register</button>
+        </form>
+
+        <div class="links">
+            Already have an account? <a th:href="@{/auth/login}">Login</a>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    function validatePassword() {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword = document.getElementById("confirmPassword").value;
+        const phone = document.getElementById("phone").value;
+
+        const emailError = document.getElementById("emailError");
+        const error = document.getElementById("errorMsg");
+        const phoneError = document.getElementById("phoneError");
+        const passwordLengthError = document.getElementById("passwordLengthError");
+
+        let valid = true;
+
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(email)) {
+            emailError.textContent = "Please enter a valid email address";
+            valid = false;
+        } else {
+            emailError.textContent = "";
+        }
+
+        if (password.length < 5) {
+            passwordLengthError.textContent = "Password should contain at least five characters";
+            valid = false;
+        } else {
+            passwordLengthError.textContent = "";
+        }
+
+        if (password !== confirmPassword) {
+            error.textContent = "Passwords do not match";
+            valid = false;
+        } else {
+            error.textContent = "";
+        }
+
+        const phonePattern = /^0[0-9]{9}$/;
+
+        if (phone !== "" && !phonePattern.test(phone)) {
+            phoneError.textContent = "Please enter a valid phone number";
+            valid = false;
+        } else {
+            phoneError.textContent = "";
+        }
+
+        return valid;
+    }
+
+    function togglePassword() {
+        const password = document.getElementById("password");
+        const confirmPassword = document.getElementById("confirmPassword");
+
+        if (password.type === "password") {
+            password.type = "text";
+            confirmPassword.type = "text";
+        } else {
+            password.type = "password";
+            confirmPassword.type = "password";
+        }
+    }
+</script>
+
+</body>
+</html>

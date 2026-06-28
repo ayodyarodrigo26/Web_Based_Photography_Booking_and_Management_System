@@ -1,0 +1,95 @@
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f6fa;
+}
+
+.page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.title h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+.cards {
+    display: flex;
+    gap: 25px;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+}
+
+.card h2 {
+    margin-top: 0;
+}
+
+.field {
+    margin: 12px 0;
+}
+
+input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    background: black;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    opacity: 0.9;
+}
+/* ALERT MESSAGES */
+.alert {
+    width: 100%;
+    max-width: 980px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.success {
+    background: #e9f9ee;
+    border: 1px solid #b7e4c7;
+    color: #1b6b2a;
+}
+
+.error {
+    background: #ffecec;
+    border: 1px solid #ffbcbc;
+    color: #9b1c1c;
+}
+
+.info {
+    background: #eef4ff;
+    border: 1px solid #c7d2fe;
+    color: #1e3a8a;
+}

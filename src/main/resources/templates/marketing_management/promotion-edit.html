@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Promotion</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Mixed 3-color palette from your image */
+            --cream-main:    #E8E8C8;
+            --soft-white:    #F3F3F1;
+            --beige-main:    #B59B80;
+
+            --cream-dark:    #d7d7b2;
+            --cream-soft:    #f1f1da;
+
+            --white-dark:    #e4e4e1;
+            --white-soft:    #fbfbfa;
+
+            --beige-dark:    #9f8368;
+            --beige-soft:    #c7b19a;
+
+            --text-dark:     #2f241c;
+            --text-mid:      #5d4a3b;
+            --text-soft:     #8b7664;
+            --text-faint:    #b49f8f;
+
+            --border:        #ddd5ca;
+            --border-strong: #cbbda9;
+
+            --danger:        #b04050;
+            --danger-bg:     rgba(176,64,80,0.08);
+
+            --shadow-sm:     0 1px 4px rgba(120,95,70,0.08), 0 1px 2px rgba(120,95,70,0.05);
+            --shadow-md:     0 8px 32px rgba(120,95,70,0.12), 0 2px 8px rgba(120,95,70,0.08);
+            --shadow-lg:     0 20px 56px rgba(120,95,70,0.15), 0 4px 16px rgba(120,95,70,0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Lora', Georgia, serif;
+            background: var(--soft-white);
+            background-image:
+                    radial-gradient(ellipse at 0% 0%, rgba(232,232,200,0.34) 0%, transparent 42%),
+                    radial-gradient(ellipse at 100% 100%, rgba(181,155,128,0.22) 0%, transparent 42%),
+                    radial-gradient(ellipse at 100% 0%, rgba(243,243,241,0.65) 0%, transparent 32%),
+                    radial-gradient(ellipse at 0% 100%, rgba(232,232,200,0.18) 0%, transparent 32%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 44px 22px;
+            position: relative;
+            overflow-x: hidden;
+            color: var(--text-dark);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -160px; right: -140px;
+            width: 520px; height: 520px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(181,155,128,0.16) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: -120px; left: -110px;
+            width: 440px; height: 440px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(232,232,200,0.22) 0%, transparent 65%);
+            pointer-events: none;
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 640px;
+            position: relative;
+            z-index: 1;
+            animation: fadeUp 0.55s cubic-bezier(.22,.68,0,1.1);
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .eyebrow {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .eyebrow-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--beige-dark);
+            background: rgba(255,255,255,0.82);
+            border: 1px solid var(--border-strong);
+            padding: 7px 20px;
+            border-radius: 999px;
+            backdrop-filter: blur(8px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .eyebrow-pill::before {
+            content: '';
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--cream-dark), var(--beige-main));
+        }
+
+        .card {
+            background: rgba(255,255,255,0.80);
+            backdrop-filter: blur(22px);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            overflow: hidden;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--cream-main) 0%, var(--soft-white) 45%, var(--beige-main) 100%);
+            padding: 28px 36px 26px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.18);
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -35px;
+            left: 45%;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.10);
+        }
+
+        .header-accent {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cream-dark), var(--beige-main), transparent);
+        }
+
+        .header-overline {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: rgba(93,74,59,0.88);
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-overline::before {
+            content: '';
+            width: 18px;
+            height: 1px;
+            background: rgba(93,74,59,0.55);
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 30px;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.15;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-title em {
+            font-style: italic;
+            font-weight: 500;
+            color: var(--beige-dark);
+        }
+
+        .card-subtitle {
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(93,74,59,0.78);
+            margin-top: 5px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-body {
+            padding: 28px 36px 32px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.45) 0%, rgba(243,243,241,0.72) 100%);
+        }
+
+        .image-section {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+            background: linear-gradient(135deg, rgba(232,232,200,0.34) 0%, rgba(243,243,241,0.85) 55%, rgba(181,155,128,0.18) 100%);
+            border: 1px solid var(--border-strong);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 22px;
+        }
+
+        .current-image {
+            flex-shrink: 0;
+        }
+
+        .current-image img {
+            width: 120px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            box-shadow: var(--shadow-sm);
+            display: block;
+        }
+
+        .no-image-box {
+            width: 120px;
+            height: 80px;
+            border-radius: 10px;
+            background: var(--white-soft);
+            border: 1.5px dashed var(--beige-soft);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .no-image-box span {
+            font-size: 20px;
+            opacity: 0.4;
+        }
+
+        .no-image-box p {
+            font-family: 'Lora', serif;
+            font-size: 10px;
+            color: var(--text-faint);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .image-upload-area {
+            flex: 1;
+        }
+
+        .image-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .image-hint {
+            font-family: 'Lora', serif;
+            font-size: 12px;
+            color: var(--text-faint);
+            margin-bottom: 10px;
+        }
+
+        .file-input-wrap {
+            position: relative;
+        }
+
+        .file-input-wrap input[type="file"] {
+            width: 100%;
+            padding: 9px 12px;
+            background: rgba(255,255,255,0.75);
+            border: 1.5px dashed var(--beige-soft);
+            border-radius: 9px;
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            color: var(--text-soft);
+            cursor: pointer;
+            transition: border-color 0.18s;
+        }
+
+        .file-input-wrap input[type="file"]:hover {
+            border-color: var(--beige-dark);
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-faint);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .row {
+            margin-bottom: 16px;
+        }
+
+        .field-label {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 13px;
+            background: rgba(255,255,255,0.68);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+            transition: all 0.18s ease;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-faint);
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--beige-dark);
+            background: var(--white-soft);
+            box-shadow: 0 0 0 3px rgba(181,155,128,0.12);
+        }
+
+        textarea {
+            min-height: 96px;
+            resize: vertical;
+            line-height: 1.65;
+        }
+
+        .suffix-wrap {
+            position: relative;
+        }
+
+        .suffix-wrap input {
+            padding-right: 42px;
+        }
+
+        .suffix {
+            position: absolute;
+            right: 13px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--beige-dark);
+            pointer-events: none;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: linear-gradient(135deg, rgba(232,232,200,0.22) 0%, rgba(243,243,241,0.78) 55%, rgba(181,155,128,0.16) 100%);
+            border: 1px solid rgba(181,155,128,0.24);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+
+        .toggle-row:hover {
+            background: linear-gradient(135deg, rgba(232,232,200,0.28) 0%, rgba(243,243,241,0.88) 55%, rgba(181,155,128,0.22) 100%);
+        }
+
+        .toggle-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .toggle-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+        }
+
+        .toggle-desc {
+            font-family: 'Lora', serif;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .toggle-right {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .toggle-right input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--beige-dark);
+            cursor: pointer;
+        }
+
+        .toggle-status {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--beige-dark);
+        }
+
+        .error {
+            font-family: 'Lora', serif;
+            font-size: 12px;
+            color: var(--danger);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .error::before {
+            content: '!';
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: #fff;
+            font-size: 9px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .card-footer {
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+        }
+
+        .card-footer::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--beige-soft), transparent);
+        }
+
+        .btn-save {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(135deg, var(--beige-dark) 0%, var(--beige-main) 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 11px 28px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            box-shadow: 0 4px 14px rgba(159,131,104,0.26), inset 0 1px 0 rgba(255,255,255,0.10);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-save::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+            transition: left 0.38s;
+        }
+
+        .btn-save::after {
+            content: '✓';
+            font-size: 14px;
+        }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, var(--beige-main) 0%, var(--beige-soft) 100%);
+            box-shadow: 0 6px 20px rgba(159,131,104,0.32);
+            transform: translateY(-1px);
+        }
+
+        .btn-save:hover::before {
+            left: 100%;
+        }
+
+        .btn-save:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-soft);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 1.5px solid var(--border);
+            background: rgba(255,255,255,0.62);
+            transition: all 0.15s;
+        }
+
+        .back-link::before {
+            content: '←';
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            background: var(--white-soft);
+            border-color: var(--beige-soft);
+            color: var(--beige-dark);
+        }
+
+        .stamp-footer {
+            text-align: center;
+            margin-top: 14px;
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--text-faint);
+            opacity: 0.65;
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <div class="eyebrow">
+        <span class="eyebrow-pill">Photography Studio — Promotions</span>
+    </div>
+
+    <div class="card">
+
+        <div class="card-header">
+            <div class="header-accent"></div>
+            <div class="header-overline">Edit Record</div>
+            <h2 class="card-title">Update <em>Promotion</em></h2>
+            <p class="card-subtitle">Modify the details of this promotional offer below.</p>
+        </div>
+
+        <div class="card-body">
+            <form th:action="@{/promotions/update/{id}(id=${promotion.id})}"
+                  th:object="${promotion}"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                <div class="image-section">
+                    <div class="current-image">
+                        <img th:if="${promotion.imageName != null}"
+                             th:src="@{'/uploads/' + ${promotion.imageName}}"
+                             alt="Promotion image">
+                        <div class="no-image-box" th:if="${promotion.imageName == null}">
+                            <span>🖼</span>
+                            <p>No image</p>
+                        </div>
+                    </div>
+                    <div class="image-upload-area">
+                        <label class="image-label">Upload New Image</label>
+                        <p class="image-hint">Optional — replaces the current image</p>
+                        <div class="file-input-wrap">
+                            <input type="file" name="imageFile" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Promotion Details</div>
+
+                <div class="row">
+                    <label class="field-label">Title</label>
+                    <input type="text" th:field="*{title}" placeholder="e.g. Summer Special">
+                    <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                </div>
+
+                <div class="row">
+                    <label class="field-label">Description</label>
+                    <textarea th:field="*{description}" placeholder="Describe the offer in detail…"></textarea>
+                    <div class="error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
+
+                <div class="row">
+                    <label class="field-label">Discount Percentage</label>
+                    <div class="suffix-wrap">
+                        <input type="number" min="1" max="100" th:field="*{discountPercent}" placeholder="e.g. 20">
+                        <span class="suffix">%</span>
+                    </div>
+                    <div class="error" th:if="${#fields.hasErrors('discountPercent')}" th:errors="*{discountPercent}"></div>
+                </div>
+
+                <div class="row">
+                    <label class="field-label">Applicable Package Category</label>
+                    <select th:field="*{applicableCategory}">
+                        <option value="">-- Select Package Category --</option>
+                        <option th:each="c : ${categories}"
+                                th:value="${c.name}"
+                                th:text="${c.name}">
+                        </option>
+                    </select>
+                    <div class="error" th:if="${#fields.hasErrors('applicableCategory')}" th:errors="*{applicableCategory}"></div>
+                </div>
+
+                <label class="toggle-row" for="activeCheck">
+                    <div class="toggle-left">
+                        <div class="toggle-title">Promotion Status</div>
+                        <div class="toggle-desc">Mark this promotion as publicly visible</div>
+                    </div>
+                    <div class="toggle-right">
+                        <input type="checkbox" id="activeCheck" th:field="*{active}">
+                        <span class="toggle-status">Active</span>
+                    </div>
+                </label>
+
+                <div class="card-footer">
+                    <button class="btn-save" type="submit">Update Promotion</button>
+                    <a class="back-link" th:href="@{/promotions}">Back to list</a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="stamp-footer">❧ &nbsp; Photography Studio &nbsp; ❧</div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>My Cart</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --vintage-bg: #fdf7f2;
+            --vintage-surface: #f7ebe2;
+            --vintage-surface-soft: #fbf1e9;
+            --vintage-primary: #b46b4e;
+            --vintage-primary-soft: #e3b7a0;
+            --vintage-accent: #d0a36f;
+            --vintage-dark: #3b2a2a;
+            --vintage-muted: #7b6a5d;
+            --success-soft: #e6f4ec;
+            --success-text: #1f7a4d;
+        }
+
+        body {
+            background-color: var(--vintage-bg) !important;
+            font-family: 'Lora', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            color: var(--vintage-dark);
+        }
+
+        .navbar {
+            background: linear-gradient(135deg, #3b2a2a, #5a3c35) !important;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            letter-spacing: 0.04em;
+        }
+
+        .card {
+            border: 0;
+            border-radius: 18px;
+            background: var(--vintage-surface);
+            box-shadow: 0 14px 30px rgba(43, 28, 25, 0.18);
+        }
+
+        .btn {
+            border-radius: 999px;
+            font-weight: 500;
+            letter-spacing: 0.03em;
+        }
+
+        .btn-primary {
+            background-color: var(--vintage-primary);
+            border-color: var(--vintage-primary);
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background-color: #9e5f46;
+            border-color: #9e5f46;
+        }
+
+        .btn-outline-primary {
+            color: var(--vintage-primary);
+            border-color: var(--vintage-primary);
+        }
+
+        .btn-outline-primary:hover,
+        .btn-outline-primary:focus {
+            background-color: var(--vintage-primary-soft);
+            color: var(--vintage-dark);
+        }
+
+        .btn-success {
+            background-color: var(--vintage-accent);
+            border-color: var(--vintage-accent);
+        }
+
+        .btn-success:hover,
+        .btn-success:focus {
+            background-color: #b9864e;
+            border-color: #b9864e;
+        }
+
+        .btn-light {
+            background-color: var(--vintage-surface-soft);
+            border-color: transparent;
+            color: var(--vintage-dark);
+        }
+
+        .btn-light:hover {
+            background-color: #f3e2d5;
+        }
+
+        .table {
+            background-color: var(--vintage-surface-soft);
+        }
+
+        .table-dark {
+            background-color: #222831 !important;
+        }
+
+        .table-dark th {
+            color: #fdf7f2 !important;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(212, 178, 145, 0.2);
+        }
+
+        .summary-box {
+            background: #fff8f3;
+            border: 1px solid #eadbce;
+            border-radius: 16px;
+            padding: 18px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .discount-text {
+            color: var(--success-text);
+            font-weight: 600;
+        }
+
+        .promo-note {
+            font-size: 0.9rem;
+            color: var(--success-text);
+            margin-top: 4px;
+        }
+
+        .coupon-box,
+        .addon-box {
+            background: #fff8f3;
+            border: 1px solid #eadbce;
+            border-radius: 16px;
+            padding: 18px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- ✅ SUCCESS MESSAGE (TOP FLOATING) -->
+<div th:if="${successMessage}"
+     id="successMessage"
+     class="alert alert-success shadow"
+     style="
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        min-width: 300px;
+        text-align: center;
+     ">
+
+    <span th:text="${successMessage}"></span>
+</div>
+
+<nav class="navbar navbar-dark bg-primary">
+    <div class="container">
+        <span class="navbar-brand mb-0 h1">My Cart</span>
+        <div class="d-flex align-items-center gap-2">
+
+
+            <span th:if="${isLoyalCustomer}"
+                  style="background:#27ae60; color:white; padding:4px 10px; border-radius:20px; font-size:12px;">
+            LOYAL CUSTOMER
+            </span>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-light btn-sm" th:href="@{/}">Home</a>
+            <a class="btn btn-light btn-sm" th:href="@{/user/packages}">Packages</a>
+            <a class="btn btn-light btn-sm" th:href="@{/user/dashboard}">Dashboard</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container py-4">
+
+    <div class="card shadow-sm" th:if="${#lists.isEmpty(items)}">
+        <div class="card-body text-center py-5">
+            <h5 class="mb-2">Your cart is empty</h5>
+            <p class="text-muted mb-3">Add a package to continue.</p>
+            <a class="btn btn-primary" th:href="@{/user/packages}">Browse Packages</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm" th:if="${!#lists.isEmpty(items)}">
+        <div class="card-body">
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Package</th>
+                        <th>Category</th>
+                        <th>Price (LKR)</th>
+                        <th>Promotion</th>
+                        <th style="width:140px;">Action</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr th:each="row : ${items}">
+                        <td th:text="${row.pkg.name}">Name</td>
+                        <td th:text="${row.pkg.category}">Category</td>
+                        <td th:text="${#numbers.formatDecimal(row.pkg.price, 1, 2)}">0.00</td>
+
+                        <td>
+                            <div th:if="${row.matchedPromotion != null}">
+                                <strong th:text="${row.matchedPromotion.title}">Promotion</strong>
+                                <div class="promo-note">
+                                    <span th:text="${row.matchedPromotion.discountPercent}">0</span>% off
+                                </div>
+                            </div>
+                            <div th:if="${row.matchedPromotion == null}" class="text-muted">
+                                No promotion
+                            </div>
+                        </td>
+
+                        <td>
+                            <a class="btn btn-sm btn-outline-danger"
+                               th:href="@{/user/cart/remove/{id}(id=${row.pkg.id})}">
+                                Remove
+                            </a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="addon-box mb-4">
+                <h5 class="mb-3">Optional Add-ons</h5>
+
+                <form th:action="@{/user/cart/addons}" method="post">
+                    <div class="row">
+                        <div class="col-md-6 mb-2" th:each="addon : ${availableAddOns}">
+                            <div class="form-check">
+                                <input class="form-check-input"
+                                       type="checkbox"
+                                       name="addons"
+                                       th:value="${addon.key}"
+                                       th:id="${'addon-' + #strings.replace(#strings.replace(addon.key,' ','-'),'(','')}"
+                                       th:checked="${selectedAddOns.contains(addon.key)}">
+
+                                <label class="form-check-label"
+                                       th:for="${'addon-' + #strings.replace(#strings.replace(addon.key,' ','-'),'(','')}">
+                                    <span th:text="${addon.key}">Addon Name</span>
+                                    -
+                                    LKR <span th:text="${#numbers.formatDecimal(addon.value, 1, 2)}">0.00</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-outline-primary mt-3" type="submit">Apply Add-ons</button>
+                </form>
+            </div>
+
+            <div class="coupon-box mb-4">
+                <h5 class="mb-3">Promotion & Coupon</h5>
+
+                <!-- 🔥 Loyalty Badge -->
+                <div th:if="${isLoyalCustomer}"
+                     class="alert alert-success mb-3"
+                     style="background:#e6f4ec; border:1px solid #b7e4c7;">
+
+                    <strong>🎉 Loyal Customer Discount Applied!</strong><br>
+                    <span style="font-size:14px;">
+    You received a
+    <b th:text="${loyaltyPercentage} + '%'">10%</b>
+    loyalty discount for being a returning customer 💚
+</span>
+
+                </div>
+
+                <div class="mb-3" th:if="${appliedPromotions != null and !#lists.isEmpty(appliedPromotions)}">
+                    <div class="alert alert-success mb-2" th:each="promo : ${appliedPromotions}">
+                        Applied Promotion:
+                        <strong th:text="${promo}">Promotion</strong>
+                    </div>
+                </div>
+
+                <div class="mb-3" th:if="${appliedPromotions == null or #lists.isEmpty(appliedPromotions)}">
+                    <div class="alert alert-secondary mb-0">
+                        No matching promotions available for the selected package(s).
+                    </div>
+                </div>
+
+                <div th:if="${couponMessage != null and !couponMessage.isEmpty()}"
+                     class="alert alert-info"
+                     th:text="${couponMessage}">
+                </div>
+
+                <form th:action="@{/user/cart/apply-coupon}" method="post" class="row g-2">
+                    <div class="col-md-8">
+                        <input type="text"
+                               name="couponCode"
+                               class="form-control"
+                               placeholder="Enter coupon code"
+                               th:value="${appliedCouponCode}">
+                    </div>
+                    <div class="col-md-4 d-flex gap-2">
+                        <button class="btn btn-primary w-100" type="submit">Apply Coupon</button>
+                        <a class="btn btn-outline-secondary w-100"
+                           th:href="@{/user/cart/remove-coupon}">Remove</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-4">
+                <div>
+                    <a class="btn btn-outline-secondary" th:href="@{/user/packages}">← Continue Shopping</a>
+                    <a class="btn btn-outline-primary ms-2" th:href="@{/}">
+                        Home
+                    </a>
+                </div>
+
+
+                <div class="summary-box" style="min-width:340px;">
+                    <div class="summary-row">
+                        <span>Package Total</span>
+                        <strong th:text="${#numbers.formatDecimal(packageTotal, 1, 2)}">0.00</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Add-on Total</span>
+                        <strong th:text="${#numbers.formatDecimal(addOnTotal, 1, 2)}">0.00</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Subtotal</span>
+                        <strong th:text="${#numbers.formatDecimal(subtotal, 1, 2)}">0.00</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Promotion Discount</span>
+                        <strong class="discount-text"
+                                th:text="${'- ' + #numbers.formatDecimal(promotionDiscount, 1, 2)}">- 0.00</strong>
+                    </div>
+                    <div class="summary-row">
+                        <span>Coupon Discount</span>
+                        <strong class="discount-text"
+                                th:text="${'- ' + #numbers.formatDecimal(couponDiscount, 1, 2)}">- 0.00</strong>
+                    </div>
+                    <!-- 🔥 Loyalty Discount -->
+                    <div class="summary-row" th:if="${isLoyalCustomer}">
+                        <span>Loyalty Discount</span>
+                        <strong class="discount-text"
+                                th:text="${'- ' + #numbers.formatDecimal(loyaltyDiscount, 1, 2)}">
+                            - 0.00
+                        </strong>
+                    </div>
+                    <hr>
+                    <div class="summary-row fs-5">
+                        <span>Final Total</span>
+                        <strong th:text="${#numbers.formatDecimal(finalTotal, 1, 2)}">0.00</strong>
+                    </div>
+
+                    <a class="btn btn-success mt-3 w-100"
+                       th:if="${!#lists.isEmpty(items)}"
+                       th:href="@{/user/cart/checkout}">
+                        Proceed to Reservation
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    setTimeout(function () {
+        let msg = document.getElementById("successMessage");
+        if (msg) {
+            msg.style.transition = "opacity 0.5s ease";
+            msg.style.opacity = "0";
+
+            setTimeout(() => msg.remove(), 500);
+        }
+    }, 5000);
+</script>
+
+</body>
+</html>

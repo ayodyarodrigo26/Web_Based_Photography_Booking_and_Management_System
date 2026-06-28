@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Promotion</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --cream-main:    #EFDFAF;
+            --gold-main:     #E9C874;
+            --orange-main:   #EE9D49;
+
+            --cream-soft:    #f7efd3;
+            --gold-soft:     #f2d892;
+            --orange-soft:   #f4b46e;
+
+            --cream-deep:    #d9c78f;
+            --gold-deep:     #d6b45d;
+            --orange-deep:   #d98735;
+
+            --paper:         #fffdfa;
+            --paper-2:       #fcf7ef;
+
+            --text-dark:     #332318;
+            --text-mid:      #6b4b2e;
+            --text-soft:     #9a7350;
+
+            --rule:          rgba(214,180,93,0.30);
+            --rule-strong:   rgba(214,180,93,0.55);
+            --border:        rgba(214,180,93,0.45);
+
+            --shadow-sm:     0 2px 8px rgba(130,90,40,0.08);
+            --shadow-md:     0 8px 30px rgba(130,90,40,0.14), 0 2px 8px rgba(130,90,40,0.08);
+            --shadow-lg:     0 20px 60px rgba(80,50,20,0.24), 0 4px 20px rgba(80,50,20,0.15);
+
+            --danger:        #c62828;
+            --danger-bg:     rgba(198,40,40,0.08);
+            --danger-border: rgba(198,40,40,0.32);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Lora', Georgia, serif;
+            background:
+                    radial-gradient(ellipse at 0% 0%, rgba(239,223,175,0.30) 0%, transparent 38%),
+                    radial-gradient(ellipse at 100% 100%, rgba(238,157,73,0.18) 0%, transparent 38%),
+                    radial-gradient(ellipse at 100% 0%, rgba(233,200,116,0.18) 0%, transparent 26%),
+                    radial-gradient(ellipse at 0% 100%, rgba(239,223,175,0.14) 0%, transparent 26%),
+                    linear-gradient(180deg, #fffdfa 0%, #fbf4e8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 34px 22px;
+            position: relative;
+            overflow-x: hidden;
+            color: var(--text-dark);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                    repeating-linear-gradient(92deg, transparent 0px, rgba(233,200,116,0.025) 1px, transparent 2px, transparent 20px),
+                    repeating-linear-gradient(88deg, transparent 0px, rgba(0,0,0,0.025) 1px, transparent 3px, transparent 42px),
+                    repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0px, transparent 4px, rgba(214,180,93,0.02) 5px, transparent 9px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .page-wrapper {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .stamp-header {
+            text-align: center;
+            margin-bottom: -11px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stamp-header .leaf-row,
+        .stamp-footer .leaf-row {
+            font-size: 15px;
+            letter-spacing: 9px;
+            color: var(--orange-main);
+            opacity: 0.72;
+            text-shadow: 0 0 10px rgba(238,157,73,0.18);
+        }
+
+        .card {
+            background: linear-gradient(160deg,
+            #f0dca7 0%, #e9c874 22%,
+            #e8bb69 42%, #ee9d49 68%,
+            #f1c679 86%, #f0dca7 100%);
+            border-radius: 6px;
+            padding: 5px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            animation: cardReveal 0.8s ease-out;
+        }
+
+        @keyframes cardReveal {
+            from { opacity: 0; transform: translateY(22px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 5px;
+            background-image: repeating-linear-gradient(90deg, transparent 0px, rgba(255,255,255,0.06) 1px, transparent 2px, transparent 22px);
+            border-radius: 3px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .card-inner {
+            background: linear-gradient(148deg,
+            #fffdfa 0%, #fcf7ef 28%,
+            #fffaf4 55%, #f9f1e3 80%,
+            #fffdfa 100%);
+            border-radius: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(214,180,93,0.07) 32px);
+            pointer-events: none;
+        }
+
+        .corner-tl, .corner-br {
+            position: absolute;
+            font-size: 17px;
+            color: rgba(238,157,73,0.24);
+            line-height: 1;
+            z-index: 1;
+        }
+
+        .corner-tl { top: 11px; left: 15px; }
+        .corner-br { bottom: 11px; right: 15px; transform: rotate(180deg); }
+
+        .card-body {
+            position: relative;
+            z-index: 1;
+            padding: 26px 32px 30px;
+        }
+
+        .card-header {
+            text-align: center;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--rule-strong);
+            position: relative;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--orange-main), transparent);
+        }
+
+        .studio-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 9px;
+            letter-spacing: 5px;
+            color: var(--text-mid);
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 34px;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+            line-height: 1;
+            margin-bottom: 4px;
+        }
+
+        .header-sub {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 13px;
+            color: var(--text-soft);
+            letter-spacing: 0.3px;
+        }
+
+        .ornament-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 11px;
+            margin-top: 10px;
+        }
+
+        .ornament-row .o-line {
+            width: 43px;
+            height: 1px;
+            background: var(--rule-strong);
+        }
+
+        .ornament-row .o-glyph {
+            font-size: 11px;
+            color: var(--orange-main);
+            letter-spacing: 4px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 9px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--rule-strong);
+        }
+
+        .row { margin-bottom: 15px; }
+
+        .field-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            font-weight: 700;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 9px 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(252,247,239,0.92) 100%);
+            border: 1px solid var(--border);
+            border-bottom: 2px solid var(--rule-strong);
+            border-radius: 2px;
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            color: var(--text-dark);
+            outline: none;
+            letter-spacing: 0.2px;
+            transition: all 0.22s ease;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.04), 0 1px 0 rgba(255,255,255,0.7);
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="datetime-local"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: var(--orange-main);
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.04), 0 0 0 3px rgba(238,157,73,0.12);
+        }
+
+        textarea {
+            min-height: 92px;
+            resize: vertical;
+            line-height: 1.75;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 9px 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.86) 0%, rgba(252,247,239,0.92) 100%);
+            border: 1px dashed var(--border);
+            border-bottom: 2px solid var(--rule-strong);
+            border-radius: 2px;
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            color: var(--text-dark);
+            cursor: pointer;
+        }
+
+        .suffix-wrap { position: relative; }
+        .suffix-wrap input { padding-right: 38px; }
+
+        .suffix {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: rgba(214,180,93,0.55);
+            pointer-events: none;
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: linear-gradient(135deg, rgba(239,223,175,0.18) 0%, rgba(233,200,116,0.10) 50%, rgba(238,157,73,0.10) 100%);
+            border: 1px solid rgba(214,180,93,0.26);
+            border-radius: 2px;
+            margin-bottom: 19px;
+            cursor: pointer;
+            transition: background 0.18s;
+        }
+
+        .toggle-row:hover {
+            background: linear-gradient(135deg, rgba(239,223,175,0.24) 0%, rgba(233,200,116,0.14) 50%, rgba(238,157,73,0.14) 100%);
+        }
+
+        .toggle-left {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .toggle-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+        }
+
+        .toggle-desc {
+            font-family: 'Lora', serif;
+            font-size: 12px;
+            color: var(--text-soft);
+        }
+
+        .toggle-right {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .toggle-right input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            accent-color: var(--orange-main);
+            cursor: pointer;
+        }
+
+        .toggle-status {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--orange-main);
+        }
+
+        .error {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            color: var(--danger);
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            font-size: 12px;
+            margin-top: 6px;
+            padding: 7px 10px;
+            border-radius: 4px;
+            display: block;
+            width: 100%;
+        }
+
+        .input-error {
+            border-color: var(--danger) !important;
+            border-bottom-color: var(--danger) !important;
+            box-shadow: 0 0 0 3px rgba(198,40,40,0.10) !important;
+        }
+
+        .card-footer {
+            padding-top: 16px;
+            border-top: 1px solid var(--rule-strong);
+            position: relative;
+        }
+
+        .footer-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-save {
+            font-family: 'Playfair Display', serif;
+            font-size: 9px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: #fffaf3;
+            background: linear-gradient(160deg, var(--orange-main) 0%, var(--gold-main) 55%, var(--cream-deep) 100%);
+            border: 1px solid rgba(214,180,93,0.75);
+            border-bottom: 2px solid rgba(0,0,0,0.22);
+            border-radius: 2px;
+            padding: 10px 23px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(214,140,53,0.22);
+        }
+
+        .btn-save:hover {
+            background: linear-gradient(160deg, var(--orange-soft) 0%, var(--gold-main) 55%, var(--cream-main) 100%);
+        }
+
+        .back-link {
+            font-family: 'Lora', serif;
+            font-style: italic;
+            font-size: 13px;
+            color: var(--text-soft);
+            text-decoration: none;
+            opacity: 0.78;
+            transition: all 0.2s;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            color: var(--orange-main);
+        }
+
+        .stamp-footer {
+            text-align: center;
+            margin-top: 7px;
+        }
+
+        .stamp-footer .leaf-row {
+            font-size: 14px;
+            letter-spacing: 8px;
+            color: var(--orange-main);
+            opacity: 0.60;
+            text-shadow: 0 0 8px rgba(238,157,73,0.18);
+        }
+    </style>
+</head>
+
+<body>
+<div class="page-wrapper">
+
+    <div class="stamp-header">
+        <div class="leaf-row">🌿 ✦ 🌿</div>
+    </div>
+
+    <div class="card">
+        <div class="card-inner">
+            <span class="corner-tl">❧</span>
+            <span class="corner-br">❧</span>
+
+            <div class="card-body">
+
+                <div class="card-header">
+                    <div class="studio-name">Photography Studio &mdash; Marketing</div>
+                    <h2>Create Promotion</h2>
+                    <div class="header-sub">Enter the details of your promotional offer</div>
+                    <div class="ornament-row">
+                        <div class="o-line"></div>
+                        <div class="o-glyph">✦</div>
+                        <div class="o-line"></div>
+                    </div>
+                </div>
+
+                <form th:action="@{/promotions/save}"
+                      th:object="${promotion}"
+                      method="post"
+                      enctype="multipart/form-data">
+
+                    <div class="row">
+                        <label class="field-label">Offer Image</label>
+                        <input type="file" name="imageFile" accept="image/*">
+                    </div>
+
+                    <div class="section-title">Offer Information</div>
+
+                    <div class="row">
+                        <label class="field-label">Promotion Title</label>
+                        <input type="text"
+                               th:field="*{title}"
+                               th:classappend="${#fields.hasErrors('title')} ? ' input-error' : ''"
+                               placeholder="e.g. Valentine Special">
+                        <div class="error" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
+                    </div>
+
+                    <div class="row">
+                        <label class="field-label">Description</label>
+                        <textarea th:field="*{description}"
+                                  th:classappend="${#fields.hasErrors('description')} ? ' input-error' : ''"
+                                  placeholder="Describe the offer in detail..."></textarea>
+                        <div class="error" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                    </div>
+
+                    <div class="row">
+                        <label class="field-label">Discount Percentage</label>
+                        <div class="suffix-wrap">
+                            <input type="number"
+                                   min="1"
+                                   max="100"
+                                   th:field="*{discountPercent}"
+                                   th:classappend="${#fields.hasErrors('discountPercent')} ? ' input-error' : ''"
+                                   placeholder="e.g. 15">
+                            <span class="suffix">%</span>
+                        </div>
+                        <div class="error" th:if="${#fields.hasErrors('discountPercent')}" th:errors="*{discountPercent}"></div>
+                    </div>
+
+                    <div class="row">
+                        <label class="field-label">Applicable Package Category</label>
+                        <select th:field="*{applicableCategory}"
+                                th:classappend="${#fields.hasErrors('applicableCategory')} ? ' input-error' : ''">
+                            <option value="">-- Select Package Category --</option>
+                            <option th:each="c : ${categories}"
+                                    th:value="${c.name}"
+                                    th:text="${c.name}">
+                            </option>
+                        </select>
+                        <div class="error" th:if="${#fields.hasErrors('applicableCategory')}" th:errors="*{applicableCategory}"></div>
+                    </div>
+
+                    <div class="section-title">Countdown (Optional)</div>
+
+                    <label class="toggle-row" for="countdownCheck">
+                        <div class="toggle-left">
+                            <div class="toggle-title">Countdown Offer</div>
+                            <div class="toggle-desc">Enable a live countdown timer for this promotion</div>
+                        </div>
+                        <div class="toggle-right">
+                            <input type="checkbox" id="countdownCheck" th:field="*{countdown}">
+                            <span class="toggle-status">Enabled</span>
+                        </div>
+                    </label>
+
+                    <div class="row"
+                         id="countdownEndRow"
+                         th:style="${promotion.countdown or #fields.hasErrors('countdownEnd')} ? 'display:block;' : 'display:none;'">
+                        <label class="field-label">Countdown Ends At</label>
+                        <input type="datetime-local"
+                               th:field="*{countdownEnd}"
+                               th:classappend="${#fields.hasErrors('countdownEnd')} ? ' input-error' : ''">
+                        <div class="error" th:if="${#fields.hasErrors('countdownEnd')}" th:errors="*{countdownEnd}"></div>
+                    </div>
+
+                    <label class="toggle-row" for="activeCheck">
+                        <div class="toggle-left">
+                            <div class="toggle-title">Promotion Status</div>
+                            <div class="toggle-desc">Mark this promotion as publicly active</div>
+                        </div>
+                        <div class="toggle-right">
+                            <input type="checkbox" id="activeCheck" th:field="*{active}">
+                            <span class="toggle-status">Active</span>
+                        </div>
+                    </label>
+
+                    <div class="card-footer">
+                        <div class="footer-actions">
+                            <button class="btn-save" type="submit">Save Promotion</button>
+                            <a class="back-link" th:href="@{/promotions}">Return to list</a>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="stamp-footer">
+        <div class="leaf-row">🌿 ✦ 🌿</div>
+    </div>
+
+</div>
+<script>
+    const countdownCheck = document.getElementById('countdownCheck');
+    const countdownEndRow = document.getElementById('countdownEndRow');
+
+    function syncCountdownUI() {
+        const on = countdownCheck && countdownCheck.checked;
+        countdownEndRow.style.display = on ? 'block' : 'none';
+    }
+
+    if (countdownCheck) {
+        countdownCheck.addEventListener('change', syncCountdownUI);
+        syncCountdownUI();
+    }
+</script>
+</body>
+</html>

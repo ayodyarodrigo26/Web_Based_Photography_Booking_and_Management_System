@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Set Countdown</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --beige-main:   #CEAF90;
+            --beige-dark:   #b89471;
+            --beige-soft:   #e6d4c2;
+            --beige-light:  #f4ebe2;
+            --paper:        #fbf7f2;
+            --paper-2:      #f6efe7;
+            --line:         rgba(206,175,144,0.45);
+            --line-strong:  rgba(206,175,144,0.70);
+
+            --brown-dark:   #3f2b1f;
+            --brown-mid:    #6a4a35;
+            --brown-soft:   #8b6a52;
+            --brown-light:  #a98463;
+
+            --danger:       #8f3d35;
+            --danger-bg:    rgba(143,61,53,0.08);
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Lora', Georgia, serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 34px 22px;
+            overflow-x: hidden;
+            background:
+                    radial-gradient(circle at top left, rgba(206,175,144,0.22), transparent 32%),
+                    radial-gradient(circle at bottom right, rgba(206,175,144,0.18), transparent 32%),
+                    linear-gradient(135deg, #1b1714 0%, #2a221c 48%, #1d1814 100%);
+        }
+
+        .page-wrapper {
+            width: 100%;
+            max-width: 660px;
+            animation: fadeUp 0.6s ease;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stamp-header,
+        .stamp-footer {
+            text-align: center;
+        }
+
+        .stamp-header {
+            margin-bottom: -10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stamp-footer {
+            margin-top: 8px;
+        }
+
+        .leaf-row {
+            font-size: 14px;
+            letter-spacing: 8px;
+            color: var(--beige-main);
+            opacity: 0.85;
+            text-shadow: 0 0 10px rgba(206,175,144,0.25);
+        }
+
+        .card {
+            background: linear-gradient(145deg, #2a231d 0%, #191511 100%);
+            border-radius: 8px;
+            padding: 6px;
+            box-shadow:
+                    0 0 0 1px rgba(206,175,144,0.25),
+                    0 0 0 3px rgba(16,13,11,0.85),
+                    0 24px 60px rgba(0,0,0,0.65);
+        }
+
+        .card-inner {
+            background: linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-inner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                    repeating-linear-gradient(
+                            0deg,
+                            transparent,
+                            transparent 33px,
+                            rgba(206,175,144,0.05) 34px
+                    );
+            pointer-events: none;
+        }
+
+        .corner-tl,
+        .corner-br {
+            position: absolute;
+            font-size: 16px;
+            color: rgba(206,175,144,0.42);
+            z-index: 1;
+        }
+
+        .corner-tl { top: 12px; left: 16px; }
+        .corner-br { bottom: 12px; right: 16px; transform: rotate(180deg); }
+
+        .card-body {
+            position: relative;
+            z-index: 2;
+            padding: 26px 30px 28px;
+        }
+
+        .card-header {
+            text-align: center;
+            padding-bottom: 16px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid var(--line-strong);
+            position: relative;
+        }
+
+        .card-header::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 42%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--beige-main), transparent);
+        }
+
+        .studio-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--brown-light);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 36px;
+            line-height: 1;
+            font-weight: 700;
+            color: var(--brown-dark);
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .header-sub {
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--brown-soft);
+            font-style: italic;
+        }
+
+        .ornament-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .o-line {
+            width: 42px;
+            height: 1px;
+            background: var(--line-strong);
+        }
+
+        .o-glyph {
+            font-size: 11px;
+            color: var(--beige-dark);
+        }
+
+        .promo-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            background: rgba(206,175,144,0.10);
+            border: 1px solid rgba(206,175,144,0.35);
+            border-radius: 6px;
+            margin-bottom: 18px;
+        }
+
+        .promo-badge .dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            background: var(--beige-main);
+            box-shadow: 0 0 8px rgba(206,175,144,0.35);
+        }
+
+        .promo-badge .p-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--brown-light);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .promo-badge .p-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brown-dark);
+            line-height: 1.15;
+        }
+
+        .error-box {
+            margin-bottom: 16px;
+            padding: 10px 12px;
+            border: 1px solid rgba(143,61,53,0.25);
+            background: var(--danger-bg);
+            color: var(--danger);
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--brown-mid);
+            font-weight: 700;
+            margin: 6px 0 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title::before,
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line-strong);
+        }
+
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 12px 14px;
+            background: rgba(206,175,144,0.09);
+            border: 1px solid rgba(206,175,144,0.30);
+            border-radius: 6px;
+            margin-bottom: 14px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .toggle-row:hover {
+            background: rgba(206,175,144,0.14);
+        }
+
+        .toggle-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--brown-mid);
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .toggle-desc {
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            color: var(--brown-soft);
+            font-style: italic;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            inset: 0;
+            border-radius: 999px;
+            background: rgba(206,175,144,0.32);
+            border: 1px solid rgba(206,175,144,0.45);
+            transition: 0.2s ease;
+        }
+
+        .slider::before {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 3px;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 50%;
+            background: #fffaf5;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.20);
+            transition: 0.22s ease;
+        }
+
+        input:checked + .slider {
+            background: linear-gradient(180deg, var(--beige-main) 0%, var(--beige-dark) 100%);
+            border-color: var(--beige-dark);
+        }
+
+        input:checked + .slider::before {
+            left: 27px;
+        }
+
+        .row {
+            margin-bottom: 14px;
+        }
+
+        .field-label {
+            display: block;
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--brown-mid);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .field-hint {
+            display: block;
+            font-family: 'Lora', serif;
+            font-size: 13px;
+            color: var(--brown-soft);
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+
+        input[type="datetime-local"] {
+            width: 100%;
+            padding: 11px 13px;
+            border-radius: 6px;
+            border: 1px solid rgba(206,175,144,0.45);
+            border-bottom: 2px solid rgba(206,175,144,0.75);
+            outline: none;
+            background: linear-gradient(180deg, #fffdfa 0%, #f5ede5 100%);
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            color: var(--brown-dark);
+            transition: 0.2s ease;
+        }
+
+        input[type="datetime-local"]:focus {
+            border-color: var(--beige-dark);
+            box-shadow: 0 0 0 3px rgba(206,175,144,0.18);
+        }
+
+        .countdown-preview {
+            display: none;
+            margin-top: 12px;
+            padding: 16px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(206,175,144,0.38);
+            background: rgba(206,175,144,0.08);
+            animation: fadeIn 0.3s ease both;
+        }
+
+        .countdown-preview.visible {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(5px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .preview-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--brown-soft);
+            text-align: center;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .segments {
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .seg {
+            text-align: center;
+        }
+
+        .seg .num {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brown-dark);
+            line-height: 1;
+            background: linear-gradient(180deg, #fffdfa 0%, #f2e7dc 100%);
+            border: 1px solid rgba(206,175,144,0.40);
+            border-bottom: 2px solid rgba(206,175,144,0.70);
+            border-radius: 6px;
+            padding: 8px 10px;
+            min-width: 50px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        .seg .unit {
+            font-family: 'Playfair Display', serif;
+            font-size: 8px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--brown-soft);
+            margin-top: 5px;
+            font-weight: 600;
+        }
+
+        .sep {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--beige-dark);
+            margin-bottom: 16px;
+            line-height: 1;
+        }
+
+        .card-footer {
+            margin-top: 22px;
+            padding-top: 14px;
+            border-top: 1px solid var(--line-strong);
+        }
+
+        .footer-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn-save {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(180deg, var(--beige-main) 0%, var(--beige-dark) 100%);
+            border: 1px solid rgba(184,148,113,0.8);
+            border-bottom: 2px solid rgba(0,0,0,0.18);
+            border-radius: 6px;
+            padding: 11px 22px;
+            cursor: pointer;
+            transition: 0.2s ease;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+        }
+
+        .btn-save:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.22);
+        }
+
+        .back-link {
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            color: var(--brown-soft);
+            text-decoration: none;
+            font-style: italic;
+            transition: 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: var(--brown-mid);
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .card-body {
+                padding: 22px 18px 24px;
+            }
+
+            h2 {
+                font-size: 30px;
+            }
+
+            .promo-badge .p-name {
+                font-size: 20px;
+            }
+
+            .footer-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-save {
+                width: 100%;
+                text-align: center;
+            }
+
+            .back-link {
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <div class="stamp-header">
+        <div class="leaf-row">✦ ✦ ✦</div>
+    </div>
+
+    <div class="card">
+        <div class="card-inner">
+            <span class="corner-tl">❧</span>
+            <span class="corner-br">❧</span>
+
+            <div class="card-body">
+
+                <div class="card-header">
+                    <div class="studio-name">Photography Studio — Marketing</div>
+                    <h2>Set Countdown</h2>
+                    <div class="header-sub">Configure a live timer for this promotional offer</div>
+                    <div class="ornament-row">
+                        <div class="o-line"></div>
+                        <div class="o-glyph">✦</div>
+                        <div class="o-line"></div>
+                    </div>
+                </div>
+
+                <div class="promo-badge">
+                    <div class="dot"></div>
+                    <div>
+                        <div class="p-label">Active Promotion</div>
+                        <div class="p-name" th:text="${promotion.title}">Special</div>
+                    </div>
+                </div>
+
+                <div class="error-box" id="clientErrorBox" style="display: none;"></div>
+
+                <form th:action="@{/promotions/countdown/{id}(id=${promotion.id})}" method="post">
+
+                    <div class="section-title">Countdown Settings</div>
+
+                    <label class="toggle-row" for="countdown-toggle">
+                        <div class="toggle-left">
+                            <div class="toggle-title">Enable Countdown</div>
+                            <div class="toggle-desc">Display a live timer on this promotion card</div>
+                        </div>
+                        <div class="toggle-switch">
+                            <input id="countdown-toggle"
+                                   type="checkbox"
+                                   name="countdown"
+                                   th:checked="${promotion.countdown}"
+                                   onchange="handleToggle(this)"/>
+                            <span class="slider"></span>
+                        </div>
+                    </label>
+
+                    <div class="row" id="dateRow" th:style="${promotion.countdown} ? 'display:block;' : 'display:none;'">
+                        <label class="field-label" for="endInput">Countdown Ends At</label>
+                        <span class="field-hint">The timer will expire at this exact moment.</span>
+                        <input type="datetime-local"
+                               name="countdownEnd"
+                               id="endInput"
+                               th:value="${promotion.countdownEnd != null ? #temporals.format(promotion.countdownEnd, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                               onchange="updatePreview()"/>
+                    </div>
+
+                    <div class="countdown-preview"
+                         id="preview-box"
+                         th:classappend="${promotion.countdown and promotion.countdownEnd != null} ? ' visible' : ''">
+                        <div class="preview-label">Live Preview</div>
+                        <div class="segments">
+                            <div class="seg"><div class="num" id="cd-d">00</div><div class="unit">Days</div></div>
+                            <div class="sep">:</div>
+                            <div class="seg"><div class="num" id="cd-h">00</div><div class="unit">Hours</div></div>
+                            <div class="sep">:</div>
+                            <div class="seg"><div class="num" id="cd-m">00</div><div class="unit">Min</div></div>
+                            <div class="sep">:</div>
+                            <div class="seg"><div class="num" id="cd-s">00</div><div class="unit">Sec</div></div>
+                        </div>
+                    </div>
+
+                    <div class="card-footer">
+                        <div class="footer-actions">
+                            <button class="btn-save" type="submit">Save Countdown</button>
+                            <a class="back-link" th:href="@{/promotions}">Return to promotions</a>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="stamp-footer">
+        <div class="leaf-row">✦ ✦ ✦</div>
+    </div>
+
+</div>
+
+<script>
+    let timerInterval = null;
+
+    function handleToggle(cb) {
+        const dateRow = document.getElementById('dateRow');
+        const preview = document.getElementById('preview-box');
+        const endInput = document.getElementById('endInput');
+        const errorBox = document.getElementById('clientErrorBox');
+
+        errorBox.style.display = 'none';
+        errorBox.textContent = '';
+
+        if (cb.checked) {
+            dateRow.style.display = 'block';
+
+            if (endInput.value) {
+                preview.classList.add('visible');
+                startCountdown();
+            }
+        } else {
+            dateRow.style.display = 'none';
+            preview.classList.remove('visible');
+            clearInterval(timerInterval);
+            endInput.value = '';
+        }
+    }
+
+    function updatePreview() {
+        const val = document.getElementById('endInput').value;
+        const preview = document.getElementById('preview-box');
+
+        if (val) {
+            preview.classList.add('visible');
+            startCountdown();
+        } else {
+            preview.classList.remove('visible');
+            clearInterval(timerInterval);
+        }
+    }
+
+    function startCountdown() {
+        clearInterval(timerInterval);
+        tick();
+        timerInterval = setInterval(tick, 1000);
+    }
+
+    function pad(n) {
+        return String(n).padStart(2, '0');
+    }
+
+    function tick() {
+        const val = document.getElementById('endInput').value;
+        if (!val) return;
+
+        const target = new Date(val).getTime();
+        const diff = target - Date.now();
+
+        if (diff <= 0) {
+            ['cd-d','cd-h','cd-m','cd-s'].forEach(id => {
+                document.getElementById(id).textContent = '00';
+            });
+            clearInterval(timerInterval);
+            return;
+        }
+
+        document.getElementById('cd-d').textContent = pad(Math.floor(diff / 86400000));
+        document.getElementById('cd-h').textContent = pad(Math.floor((diff % 86400000) / 3600000));
+        document.getElementById('cd-m').textContent = pad(Math.floor((diff % 3600000) / 60000));
+        document.getElementById('cd-s').textContent = pad(Math.floor((diff % 60000) / 1000));
+    }
+
+    window.addEventListener('load', function () {
+        const checkbox = document.getElementById('countdown-toggle');
+        const endInput = document.getElementById('endInput');
+
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        endInput.min = now.toISOString().slice(0, 16);
+
+        if (checkbox.checked && endInput.value) {
+            document.getElementById('preview-box').classList.add('visible');
+            startCountdown();
+        }
+    });
+</script>
+</body>
+</html>

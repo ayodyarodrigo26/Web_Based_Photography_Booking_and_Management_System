@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Offers</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sage:        #B7C888;
+            --sage-dark:   #96aa64;
+            --sage-pale:   #e0eac4;
+            --sage-ghost:  #f2f6e8;
+            --yellow:      #E5D598;
+            --yellow-dark: #c8b870;
+            --yellow-pale: #f2ecc4;
+            --yellow-ghost:#faf6e6;
+            --cream:       #F8EDD0;
+            --cream-dark:  #e8d5a8;
+            --tan:         #CBB385;
+            --tan-dark:    #a8905e;
+            --tan-pale:    #e8d8be;
+            --orange:      #E8AF7C;
+            --orange-dark: #c88848;
+            --orange-pale: #f5d8b8;
+            --ink:         #2a2018;
+            --ink-mid:     #4a3828;
+            --ink-soft:    #7a6248;
+            --ink-mute:    #b09878;
+            --white:       #fffdf8;
+            --bg:          #faf6ee;
+            --shadow-sm:   0 2px 8px rgba(90,70,40,0.09);
+            --shadow-md:   0 8px 32px rgba(90,70,40,0.13), 0 2px 8px rgba(90,70,40,0.07);
+            --shadow-lg:   0 20px 56px rgba(90,70,40,0.15), 0 4px 16px rgba(90,70,40,0.09);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            background-image:
+                    radial-gradient(ellipse at 0% 0%, rgba(183,200,136,0.18) 0%, transparent 45%),
+                    radial-gradient(ellipse at 100% 100%, rgba(229,213,152,0.15) 0%, transparent 45%),
+                    radial-gradient(ellipse at 100% 0%, rgba(232,175,124,0.10) 0%, transparent 35%);
+            min-height: 100vh;
+            padding: 48px 36px;
+            color: var(--ink);
+        }
+
+        .page-wrapper { max-width: 1120px; margin: 0 auto; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 36px;
+            padding-bottom: 24px;
+            border-bottom: 1.5px solid var(--cream-dark);
+            position: relative;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -4px; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--sage), var(--yellow), var(--orange), transparent);
+            opacity: 0.5;
+        }
+
+        .header-left .overline {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3.5px;
+            text-transform: uppercase;
+            color: var(--tan-dark);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-left .overline::before {
+            content: '';
+            width: 24px; height: 1.5px;
+            background: var(--tan);
+        }
+
+        .header-left h1 {
+            font-family: 'Fraunces', serif;
+            font-size: 46px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        .header-left h1 em {
+            font-style: italic;
+            font-weight: 600;
+            color: var(--sage-dark);
+        }
+
+        .header-meta {
+            font-size: 14px;
+            color: var(--ink-soft);
+            margin-top: 8px;
+        }
+
+        .offers-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--ink-soft);
+            background: var(--cream);
+            border: 1px solid var(--cream-dark);
+            padding: 8px 18px;
+            border-radius: 999px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .offers-count strong {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: 0;
+        }
+
+        .filter-dropdown {
+            padding: 8px 16px;
+            border-radius: 999px;
+            border: 1.5px solid var(--cream-dark);
+            background: var(--white);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink-mid);
+            cursor: pointer;
+        }
+
+        .filter-strip {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 28px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 7px 16px;
+            border-radius: 999px;
+            border: 1.5px solid var(--cream-dark);
+            background: var(--white);
+            color: var(--ink-soft);
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .filter-chip.active {
+            background: var(--ink);
+            border-color: var(--ink);
+            color: var(--white);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--cream-dark);
+            border-radius: 18px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.22s ease, box-shadow 0.22s ease;
+            display: flex;
+            flex-direction: column;
+            animation: fadeUp 0.5s ease-out both;
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card:nth-child(4n+1) .card-band { background: linear-gradient(135deg, var(--sage) 0%, var(--sage-dark) 100%); }
+        .card:nth-child(4n+2) .card-band { background: linear-gradient(135deg, var(--yellow) 0%, var(--yellow-dark) 100%); }
+        .card:nth-child(4n+3) .card-band { background: linear-gradient(135deg, var(--tan) 0%, var(--tan-dark) 100%); }
+        .card:nth-child(4n+0) .card-band { background: linear-gradient(135deg, var(--orange) 0%, var(--orange-dark) 100%); }
+
+        .card-band { height: 6px; }
+
+        .card-image {
+            width: 100%;
+            height: 185px;
+            background: var(--cream);
+            border-bottom: 1px solid var(--cream-dark);
+            overflow: hidden;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .card-image .no-image {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--ink-mute);
+            font-size: 13px;
+            letter-spacing: 0.3px;
+        }
+
+        .card-body {
+            padding: 22px 24px 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 14px;
+            gap: 10px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 999px;
+            white-space: nowrap;
+        }
+
+        .status-pill::before {
+            content: '';
+            width: 5px; height: 5px;
+            border-radius: 50%;
+        }
+
+        .pill-active {
+            background: var(--sage-ghost);
+            color: var(--sage-dark);
+            border: 1px solid var(--sage-pale);
+        }
+        .pill-active::before { background: var(--sage-dark); }
+
+        .pill-inactive {
+            background: var(--cream);
+            color: var(--ink-mute);
+            border: 1px solid var(--cream-dark);
+        }
+        .pill-inactive::before { background: var(--ink-mute); }
+
+        .pill-countdown {
+            background: rgba(232,175,124,0.14);
+            color: var(--orange-dark);
+            border: 1px solid rgba(232,175,124,0.35);
+        }
+        .pill-countdown::before { background: var(--orange-dark); }
+
+        .discount-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .discount-value {
+            font-family: 'Fraunces', serif;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--orange-dark);
+            line-height: 1;
+        }
+
+        .discount-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--ink-mute);
+            margin-top: 2px;
+        }
+
+        .card-title {
+            font-family: 'Fraunces', serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.25;
+            margin-bottom: 8px;
+        }
+
+        .card-desc {
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--ink-soft);
+            line-height: 1.6;
+            flex: 1;
+            margin-bottom: 12px;
+        }
+
+        .countdown-line::before {
+
+            font-size: 16px;
+            margin-right: 4px;   /* ✅ better spacing */
+        }
+
+        .countdown-line {
+            font-size: 15px !important;
+            font-weight: 700 !important;
+            color: #b23a2b !important;
+            background: #fff1ef !important;
+            padding: 8px 12px !important;
+            border-radius: 10px !important;
+            border: 1px solid #ffc9c3 !important;
+            margin-bottom: 14px !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            box-shadow: 0 4px 12px rgba(178,58,43,0.15) !important;
+        }
+
+        .countdown-line b {
+            font-size: 16px !important;
+            font-weight: 800 !important;
+            color: #8f2d23 !important;
+        }
+
+
+        .card-divider {
+            height: 1px;
+            background: var(--cream-dark);
+            margin-bottom: 16px;
+        }
+
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .card-footer-meta {
+            font-size: 12px;
+            color: var(--ink-mute);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .card-footer-meta::before {
+            content: '🌿';
+            font-size: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-decoration: none;
+            color: var(--white);
+            background: linear-gradient(135deg, var(--ink-mid) 0%, var(--ink) 100%);
+            padding: 10px 20px;
+            border-radius: 10px;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 72px 20px;
+        }
+
+        .empty-icon { font-size: 52px; opacity: 0.35; margin-bottom: 14px; }
+
+        .empty-title {
+            font-family: 'Fraunces', serif;
+            font-size: 24px;
+            color: var(--ink-soft);
+            margin-bottom: 6px;
+        }
+
+        .empty-sub {
+            font-size: 14px;
+            color: var(--ink-mute);
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div class="header-left">
+            <div class="overline">CISRA Studio</div>
+            <h1>Current <em>Offers</em></h1>
+            <p class="header-meta">Exclusive promotions crafted just for you</p>
+        </div>
+        <div class="offers-count">
+            <strong th:text="${promotions != null ? promotions.size() : 0}">0</strong>
+            Promotions Available
+        </div>
+    </div>
+
+    <div class="filter-strip">
+
+        <div class="filter-chip active">
+            <span th:text="${selectedCategory != null ? selectedCategory + ' Offers' : 'All Offers'}"></span>
+        </div>
+
+
+
+    </div>
+
+    <div class="grid">
+
+        <div th:each="p : ${promotions}" class="card">
+            <div class="card-band"></div>
+
+            <div class="card-image">
+                <img th:if="${p.imageName != null}"
+                     th:src="@{'/uploads/' + ${p.imageName}}"
+                     alt="Offer Image">
+                <div class="no-image" th:if="${p.imageName == null}">No image</div>
+            </div>
+
+            <div class="card-body">
+
+                <div class="card-top">
+                    <span class="status-pill pill-active">ACTIVE</span>
+
+                    <span th:if="${p.countdown}" class="status-pill pill-countdown">COUNTDOWN</span>
+
+                    <div class="discount-badge">
+                        <span class="discount-value"><span th:text="${p.discountPercent}"></span>%</span>
+                        <span class="discount-label">Off</span>
+                    </div>
+                </div>
+
+                <h3 class="card-title" th:text="${p.title}"></h3>
+                <p class="card-desc" th:text="${p.description}"></p>
+
+                <div class="countdown-line" th:if="${p.countdown and p.countdownEnd != null}">
+                    ⏳ <span>Ends:</span>
+                    <b th:text="${#temporals.format(p.countdownEnd, 'yyyy-MM-dd HH:mm')}">2026-02-28 22:30</b>
+                </div>
+
+                <div class="card-divider"></div>
+
+                <div class="card-footer">
+                    <span class="card-footer-meta">Limited offer</span>
+                    <a class="btn" th:href="@{/user/packages(category=${p.applicableCategory})}">Select Package</a>
+                </div>
+
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(promotions)}" class="empty-state">
+            <div class="empty-icon">🌿</div>
+            <p class="empty-title">No offers available</p>
+            <p class="empty-sub">Check back soon for exclusive promotions.</p>
+        </div>
+
+    </div>
+
+</div>
+
+
+
+</body>
+</html>

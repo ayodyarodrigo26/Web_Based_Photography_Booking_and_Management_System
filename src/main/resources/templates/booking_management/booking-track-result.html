@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Booking Status | Vintage Studio</title>
+
+    <style>
+        :root {
+            --paper-bg: #f2ede4;
+            --card-bg: #f9f6f0;
+            --ink-text: #2b1f1a;
+            --accent-brown: #6e4a36;
+            --accent-red: #8b2e2e;
+            --accent-green: #2e7d32;
+            --accent-gold: #a67c52;
+            --border-sepia: rgba(110, 74, 54, 0.2);
+            --shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Georgia', serif;
+            background-color: var(--paper-bg);
+            color: var(--ink-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            width: min(980px, 100%);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            position: relative;
+        }
+
+        h1 { font-size: 38px; margin: 0 0 10px 0; color: var(--ink-text); }
+
+        .status-header {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #555;
+            border-bottom: 1px dashed var(--border-sepia);
+            padding-bottom: 15px;
+            line-height: 1.7;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: bold;
+            letter-spacing: .04em;
+            text-transform: uppercase;
+        }
+
+        .booking-pending { background: #efe2cf; color: #6e4a36; }
+        .booking-approved { background: #e8f5e9; color: #2e7d32; }
+        .booking-rejected { background: #fdecec; color: #8b2e2e; }
+        .booking-cancelled { background: #ececec; color: #666; }
+
+        .payment-unpaid { background: #fdecec; color: #8b2e2e; }
+        .payment-advance { background: #fff5e6; color: #a67c52; }
+        .payment-paid { background: #e8f5e9; color: #2e7d32; }
+
+        .notice-box {
+            border-left: 5px solid var(--accent-gold);
+            background: #fff8ef;
+            padding: 18px;
+            margin-bottom: 24px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .rejection-container {
+            background-color: rgba(139, 46, 46, 0.05);
+            border-left: 5px solid var(--accent-red);
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .rejection-title {
+            color: var(--accent-red);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .rejection-text {
+            font-style: italic;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+
+        h3 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-sepia);
+            padding-bottom: 5px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 8px 0;
+            border-bottom: 1px dotted var(--border-sepia);
+        }
+
+        .label {
+            text-transform: uppercase;
+            font-size: 12px;
+            font-weight: bold;
+            color: #777;
+            letter-spacing: 1px;
+        }
+
+        .value {
+            font-size: 15px;
+            text-align: right;
+            font-family: "Segoe UI", Arial, sans-serif;
+        }
+
+        .btn-container { display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap; }
+
+        .btn {
+            padding: 10px 22px;
+            border-radius: 12px;
+            font-weight: bold;
+            font-family: inherit;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.2s;
+            border: 1px solid transparent;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-brown);
+            color: white;
+            box-shadow: 0 4px 10px rgba(110, 74, 54, 0.3);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ccc;
+            color: var(--ink-text);
+        }
+
+        .btn-danger-outline {
+            background-color: transparent;
+            border: 1px solid #eecaca;
+            color: var(--accent-red);
+        }
+
+        .btn-success {
+            background: var(--accent-green);
+            color: white;
+        }
+
+        .btn-gold {
+            background: var(--accent-gold);
+            color: white;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(43, 31, 26, 0.5);
+            backdrop-filter: blur(5px);
+            display: none;
+            align-items: center; justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-card {
+            background-color: var(--card-bg);
+            padding: 35px;
+            border-radius: 20px;
+            max-width: 450px;
+            text-align: center;
+        }
+
+        .modal-card textarea {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 15px 0;
+            font-family: inherit;
+            box-sizing: border-box;
+        }
+
+        @media (max-width: 768px) {
+            .grid-container { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Booking Status</h1>
+
+    <div class="status-header">
+        Booking ID: <b th:text="${booking.id}"></b>
+        &nbsp;|&nbsp;
+        Booking Status:
+        <span class="status-badge"
+              th:classappend="${
+                booking.status.name() == 'APPROVED' ? ' booking-approved' :
+                booking.status.name() == 'REJECTED' ? ' booking-rejected' :
+                booking.status.name() == 'CANCELLED' ? ' booking-cancelled' :
+                ' booking-pending'
+              }"
+              th:text="${booking.status}">
+        </span>
+        &nbsp;|&nbsp;
+        Payment Status:
+        <span class="status-badge"
+              th:classappend="${
+                booking.paymentStatus != null and booking.paymentStatus.name() == 'PAID' ? ' payment-paid' :
+                booking.paymentStatus != null and booking.paymentStatus.name() == 'ADVANCE_PAID' ? ' payment-advance' :
+                ' payment-unpaid'
+              }"
+              th:text="${booking.paymentStatus != null ? booking.paymentStatus : 'UNPAID'}">
+        </span>
+    </div>
+
+    <div th:if="${latestPayment != null and fullyPaid}" class="notice-box" style="border-left-color:#2e7d32; background:#eef8ef;">
+        <b style="color:#2e7d32;">Payment completed.</b>
+        Your booking has been paid in full. It will remain under admin review until the final booking approval is completed.
+    </div>
+
+    <div th:if="${latestPayment != null and advancePaid}" class="notice-box">
+        <b style="color:#a67c52;">Advance payment received.</b>
+        Your booking has an advance payment recorded. Please complete the remaining balance before the due process if required.
+    </div>
+
+    <div th:if="${booking.status.name() == 'REJECTED'}" class="rejection-container">
+        <span class="rejection-title">Management Feedback</span>
+        <p class="rejection-text" th:text="${booking.cancellationMessage != null ? booking.cancellationMessage : 'No specific reason provided.'}"></p>
+    </div>
+
+    <div th:if="${booking.status.name() == 'CANCELLED'}" class="rejection-container" style="border-left-color: #666; background: #eee;">
+        <span class="rejection-title" style="color: #666;">Cancellation Reason</span>
+        <p class="rejection-text" th:text="${booking.cancellationMessage}"></p>
+    </div>
+
+    <div class="grid-container">
+        <div>
+            <h3>Reservation Details</h3>
+            <div class="detail-row"><span class="label">Customer</span><span class="value" th:text="${booking.customerName}"></span></div>
+            <div class="detail-row"><span class="label">Email</span><span class="value" th:text="${booking.customerEmail}"></span></div>
+            <div class="detail-row"><span class="label">Phone</span><span class="value" th:text="${booking.customerPhone}"></span></div>
+            <div class="detail-row"><span class="label">Package</span><span class="value" th:text="${booking.packageName != null ? booking.packageName : 'Not available'}"></span></div>
+            <div class="detail-row"><span class="label">Final Amount</span><span class="value" th:text="${booking.finalAmount != null ? 'LKR ' + booking.finalAmount : 'Not available'}"></span></div>
+            <div class="detail-row"><span class="label">Event Type</span><span class="value" th:text="${booking.eventType}"></span></div>
+            <div class="detail-row"><span class="label">Date</span><span class="value" th:text="${booking.eventDate}"></span></div>
+            <div class="detail-row"><span class="label">Time</span><span class="value" th:text="${booking.startTime + ' - ' + booking.endTime}"></span></div>
+            <div class="detail-row"><span class="label">Location</span><span class="value" th:text="${booking.eventLocation}"></span></div>
+        </div>
+
+        <div>
+            <h3>Payment & Assignment</h3>
+            <div class="detail-row">
+                <span class="label">Photographer</span>
+                <span class="value" th:text="${booking.photographer != null ? booking.photographer.fullName : 'Pending Assignment'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Photographer Contact</span>
+                <span class="value" th:text="${booking.photographer != null ? booking.photographer.email : 'N/A'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Payment Record</span>
+                <span class="value" th:text="${latestPayment != null ? ('#' + latestPayment.id) : 'Not created'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Amount Paid</span>
+                <span class="value" th:text="${'LKR ' + amountPaid}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Remaining Balance</span>
+                <span class="value" th:text="${'LKR ' + remainingBalance}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Payment Method</span>
+                <span class="value" th:text="${latestPayment != null && latestPayment.paymentMethod != null ? latestPayment.paymentMethod : 'Not available'}"></span>
+            </div>
+            <div class="detail-row">
+                <span class="label">Receipt</span>
+                <span class="value">
+                    <a th:if="${latestPayment != null}" th:href="@{/payments/receipt/{id}(id=${latestPayment.id})}">Download PDF</a>
+                    <span th:if="${latestPayment == null}">Not available</span>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-container">
+        <a th:href="@{/booking/new}" class="btn btn-primary">New Booking</a>
+        <a th:href="@{/booking/track}" class="btn btn-outline">Track Another</a>
+
+        <a th:if="${latestPayment == null}"
+           th:href="@{/payments(bookingId=${booking.id})}"
+           class="btn btn-gold">Proceed to Payment</a>
+
+        <a th:if="${advancePaid}"
+           th:href="@{/payments(bookingId=${booking.id},payBalance=1)}"
+           class="btn btn-gold">Pay Remaining Balance</a>
+
+        <a th:if="${latestPayment != null}"
+           th:href="@{/payments/receipt/{id}(id=${latestPayment.id})}"
+           class="btn btn-success">Receipt PDF</a>
+
+        <button th:if="${booking.status.name() != 'CANCELLED' and booking.status.name() != 'REJECTED'}"
+                onclick="openModal()" class="btn btn-danger-outline">Cancel Reservation</button>
+    </div>
+</div>
+
+<div id="cancelModal" class="modal-overlay">
+    <div class="modal-card">
+        <h2 style="color: var(--accent-red)">Confirm Cancellation</h2>
+        <p>Are you sure you want to cancel your reservation? This cannot be undone.</p>
+
+        <form th:action="@{/booking/cancel/{id}(id=${booking.id})}" method="post">
+            <textarea name="reason" placeholder="Please let us know why you are cancelling..." required rows="3"></textarea>
+            <div style="display: flex; justify-content: center; gap: 10px;">
+                <button type="button" onclick="closeModal()" class="btn btn-outline">Keep Booking</button>
+                <button type="submit" class="btn" style="background: var(--accent-red); color: white;">Confirm Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() { document.getElementById('cancelModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('cancelModal').style.display = 'none'; }
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('cancelModal')) closeModal();
+    }
+</script>
+
+</body>
+</html>

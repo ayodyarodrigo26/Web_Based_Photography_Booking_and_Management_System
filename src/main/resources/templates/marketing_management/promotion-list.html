@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Promotions</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700;800&family=Lora:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg:            #faf5ee;
+            --bg2:           #f4ece0;
+            --surface:       #ffffff;
+            --surface2:      #fdf9f4;
+            --border:        #ddd0bc;
+            --border-strong: #c8b498;
+
+            --brown-100:     #f5ede3;
+            --brown-200:     #e7d5c2;
+            --brown-300:     #d0b292;
+            --brown-400:     #a97d58;
+            --brown-500:     #7b5538;
+            --brown-600:     #5e3f29;
+            --brown-700:     #432b1c;
+
+            --text-dark:     #1f140d;
+            --text-mid:      #5a3d27;
+            --text-soft:     #8a6a50;
+
+            --shadow-sm:     0 1px 4px rgba(120,85,55,0.08), 0 1px 2px rgba(120,85,55,0.05);
+            --shadow-md:     0 6px 24px rgba(120,85,55,0.12), 0 2px 8px rgba(120,85,55,0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-style: normal !important;
+        }
+
+        body {
+            font-family: 'Lora', Georgia, serif;
+            background: var(--bg);
+            background-image:
+                    radial-gradient(ellipse at 0% 0%, rgba(220,190,160,0.22) 0%, transparent 42%),
+                    radial-gradient(ellipse at 100% 100%, rgba(200,170,140,0.18) 0%, transparent 42%),
+                    radial-gradient(ellipse at 100% 0%, rgba(230,210,190,0.15) 0%, transparent 28%),
+                    radial-gradient(ellipse at 0% 100%, rgba(210,195,175,0.18) 0%, transparent 28%),
+                    radial-gradient(ellipse at 50% 0%, rgba(123,85,56,0.05) 0%, transparent 35%);
+            min-height: 100vh;
+            padding: 36px 30px;
+            color: var(--text-dark);
+            font-size: 16px;
+        }
+
+        .page-wrapper {
+            max-width: 1220px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 26px;
+            padding-bottom: 18px;
+            border-bottom: 2px solid var(--border-strong);
+            position: relative;
+        }
+
+        .page-header::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--brown-400), var(--brown-300), transparent);
+            opacity: 0.45;
+        }
+
+        .header-left .overline {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            color: var(--brown-400);
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .header-left h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 46px;
+            font-weight: 700;
+            color: var(--text-dark);
+            letter-spacing: -0.5px;
+            line-height: 1;
+        }
+
+        .header-left h1 .ornament {
+            font-size: 32px;
+            color: var(--brown-500);
+            margin-right: 12px;
+            opacity: 0.8;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 18px 22px;
+            flex: 1;
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.2s, transform 0.2s;
+        }
+
+        .stat-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--brown-200), var(--brown-400), var(--brown-600));
+        }
+
+        .stat-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Playfair Display', serif;
+            font-size: 38px;
+            font-weight: 700;
+            color: var(--brown-500);
+            line-height: 1;
+        }
+
+        .stat-sub {
+            font-family: 'Lora', serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: var(--text-soft);
+            margin-top: 5px;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 13px;
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-wrap {
+            position: relative;
+        }
+
+        .search-wrap svg {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-soft);
+            pointer-events: none;
+        }
+
+        .search-input {
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            padding: 9px 14px 9px 38px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-dark);
+            outline: none;
+            width: 290px;
+        }
+
+        .search-input:focus {
+            border-color: var(--brown-400);
+            box-shadow: 0 0 0 3px rgba(123,85,56,0.10);
+        }
+
+        .search-btn,
+        .clear-btn {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 9px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-btn {
+            color: #fff;
+            background: linear-gradient(180deg, var(--brown-500) 0%, var(--brown-600) 100%);
+            border: 1px solid rgba(67,43,28,0.45);
+            border-bottom: 2px solid rgba(0,0,0,0.18);
+            box-shadow: 0 4px 12px rgba(94,63,41,0.18);
+        }
+
+        .search-btn:hover {
+            background: linear-gradient(180deg, #8a6242 0%, #5e3f29 100%);
+        }
+
+        .clear-btn {
+            color: var(--text-mid);
+            background: var(--surface);
+            border: 1px solid var(--border);
+        }
+
+        .clear-btn:hover {
+            background: rgba(123,85,56,0.08);
+            border-color: rgba(123,85,56,0.25);
+            color: var(--brown-600);
+        }
+
+        .btn-new {
+            font-family: 'Playfair Display', serif;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            background: linear-gradient(180deg, var(--brown-500) 0%, var(--brown-600) 100%);
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 1px solid rgba(67,43,28,0.45);
+            border-bottom: 2px solid rgba(0,0,0,0.18);
+            box-shadow: 0 4px 14px rgba(94,63,41,0.22);
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-new:hover {
+            background: linear-gradient(180deg, #8a6242 0%, #5e3f29 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(94,63,41,0.28);
+        }
+
+        .table-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow-x: auto;
+            overflow-y: hidden;
+            box-shadow: var(--shadow-md);
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            min-width: 1160px;
+        }
+
+        thead tr {
+            background: linear-gradient(180deg, var(--brown-100) 0%, #efe2d2 100%);
+            border-bottom: 2px solid var(--border-strong);
+        }
+
+        th {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-mid);
+            padding: 15px 20px;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 20px;
+            font-size: 16px;
+            color: var(--text-dark);
+            vertical-align: middle;
+            border-bottom: 1px solid rgba(222,200,178,0.6);
+            font-family: 'Lora', serif;
+        }
+
+        tbody tr:hover {
+            background: rgba(245,230,210,0.45);
+        }
+
+        th:nth-child(2),
+        td:nth-child(2) {
+            min-width: 210px;
+            width: 210px;
+        }
+
+        .td-id {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-soft);
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        .td-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            line-height: 1.35;
+            display: inline-block;
+            max-width: 200px;
+            white-space: normal;
+            word-break: normal;
+            overflow-wrap: normal;
+            hyphens: none;
+        }
+
+        .td-desc {
+            font-family: 'Lora', serif;
+            font-size: 15px;
+            color: var(--text-mid);
+            line-height: 1.7;
+            max-width: 320px;
+            display: inline-block;
+        }
+
+        .discount-badge {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 2px;
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--brown-500);
+        }
+
+        .discount-badge .pct {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--brown-400);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 13px;
+            border-radius: 999px;
+            font-family: 'Playfair Display', serif;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .pill::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .pill-active {
+            background: rgba(123,85,56,0.08);
+            color: var(--brown-600);
+            border: 1px solid rgba(123,85,56,0.22);
+        }
+
+        .pill-active::before {
+            background: var(--brown-500);
+        }
+
+        .pill-inactive {
+            background: rgba(208,178,146,0.12);
+            color: var(--brown-400);
+            border: 1px solid rgba(208,178,146,0.35);
+        }
+
+        .pill-inactive::before {
+            background: var(--brown-400);
+        }
+
+        th:last-child,
+        td:last-child {
+            width: 180px;
+            min-width: 180px;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+            min-width: 130px;
+        }
+
+        .action-btn {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            padding: 7px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-mid);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            min-width: 110px;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            background: rgba(123,85,56,0.08);
+            border-color: rgba(123,85,56,0.25);
+            color: var(--brown-600);
+        }
+
+        .thumb {
+            width: 110px;
+            height: 72px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd0bc;
+            display: block;
+        }
+
+        .empty-row td {
+            text-align: center;
+            padding: 58px 20px;
+            border-bottom: none;
+        }
+
+        .empty-text {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-soft);
+        }
+
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 13px 26px;
+            border-top: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--surface2) 0%, var(--brown-100) 100%);
+        }
+
+        .footer-count {
+            font-family: 'Playfair Display', serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--text-soft);
+        }
+
+        .bottom-nav {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-link {
+            font-family: 'Lora', serif;
+            font-size: 16px;
+            color: var(--brown-500);
+            text-decoration: none;
+            opacity: 0.9;
+        }
+
+        .nav-link:hover {
+            color: var(--brown-600);
+            text-decoration: underline;
+        }
+
+        .btn-dashboard {
+            background: #ffffff;
+            color: #3b2a1a;
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .btn-dashboard:hover {
+            background: #f5efe2;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* WHITE DASHBOARD BUTTON */
+        .btn-dashboard {
+            background: #f8f6f2;
+            color: #3b2a1a;
+            padding: 10px 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            border: 1px solid #e0d6c5;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .btn-dashboard:hover {
+            background: #eee7dc;
+        }
+
+        /* BROWN PRIMARY BUTTON (MATCH YOUR UI) */
+        .btn-primary {
+            background: #6b4b2a;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 14px;
+            text-decoration: none;
+            font-weight: 600;
+            border: none;
+        }
+
+
+        .btn-primary:hover {
+            background: #5a3d22;
+        }
+
+        .delete-btn {
+            background: #fff0f0;
+            color: #b71c1c;
+            border: 1px solid #e57373;
+        }
+
+        .delete-btn:hover {
+            background: #f8d7da;
+            border-color: #d32f2f;
+            color: #7f0000;
+        }
+    </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div class="header-left">
+            <div class="overline">CISRA Studio &mdash; Marketing</div>
+            <h1><span class="ornament">❧</span>Promotions</h1>
+        </div>
+
+        <div class="header-actions">
+
+            <!-- Dashboard Button -->
+            <a href="/admin/management-dashboard" class="btn-dashboard">
+                ← Dashboard
+            </a>
+
+            <!-- New Promotion Button -->
+            <a href="/promotions/new" class="btn-primary">
+                + New Promotion
+            </a>
+
+        </div>
+    </div>
+    <!-- ✅ SUCCESS MESSAGE (CORRECT POSITION) -->
+    <!-- ✅ SUCCESS MESSAGE -->
+    <div th:if="${success}" id="successAlert"
+         style="
+        background:#e6f4ea;
+        color:#2e7d32;
+        padding:14px 18px;
+        border-radius:10px;
+        margin-bottom:20px;
+        font-weight:600;
+        border:1px solid #c8e6c9;
+     ">
+        <span th:text="${success}"></span>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-card">
+            <div class="stat-label">Total</div>
+            <div class="stat-value" th:text="${promotions != null ? promotions.size() : 0}">0</div>
+            <div class="stat-sub">All promotions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Active</div>
+            <div class="stat-value" th:text="${promotions != null ? promotions.?[active == true].size() : 0}">0</div>
+            <div class="stat-sub">Currently live</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Inactive</div>
+            <div class="stat-value" th:text="${promotions != null ? promotions.?[active == false].size() : 0}">0</div>
+            <div class="stat-sub">Paused or ended</div>
+        </div>
+    </div>
+
+    <div class="toolbar">
+        <div class="toolbar-left">
+            <form class="search-form" th:action="@{/promotions}" method="get">
+                <div class="search-wrap">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                        <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+                        <path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    </svg>
+                    <input class="search-input"
+                           type="text"
+                           name="keyword"
+                           th:value="${keyword}"
+                           placeholder="Search promotions…">
+                </div>
+                <button class="search-btn" type="submit">Search</button>
+                <a class="clear-btn" th:href="@{/promotions}">Clear</a>
+            </form>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Image</th>
+                <th>Description</th>
+                <th>Discount %</th>
+                <th>Status</th>
+                <th>Countdown</th>
+                <th>Ends At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="p, stat : ${promotions}">
+                <td><span class="td-id" th:text="${'#' + stat.count}">#1</span></td>
+
+                <td><span class="td-title" th:text="${p.title}">Title</span></td>
+
+                <td>
+                    <img class="thumb"
+                         th:if="${p.imageName != null}"
+                         th:src="@{'/uploads/' + ${p.imageName}}"
+                         alt="Promotion Image">
+                    <span th:if="${p.imageName == null}" style="opacity:.6;">No image</span>
+                </td>
+
+                <td><span class="td-desc" th:text="${p.description}">Description</span></td>
+
+                <td>
+                    <span class="discount-badge">
+                        <span th:text="${p.discountPercent}">10</span>
+                        <span class="pct">%</span>
+                    </span>
+                </td>
+
+                <td>
+                    <span th:class="${p.active ? 'pill pill-active' : 'pill pill-inactive'}"
+                          th:text="${p.active ? 'Active' : 'Inactive'}">Active</span>
+                </td>
+
+                <td>
+                    <span th:class="${p.countdown ? 'pill pill-active' : 'pill pill-inactive'}"
+                          th:text="${p.countdown ? 'On' : 'Off'}">Off</span>
+                </td>
+
+                <td>
+                    <span th:if="${p.countdownEnd != null}"
+                          th:text="${#temporals.format(p.countdownEnd, 'yyyy-MM-dd HH:mm')}">2026-02-28 18:30</span>
+                    <span th:if="${p.countdownEnd == null}" style="opacity:.6;">—</span>
+                </td>
+
+                <td>
+                    <div class="actions">
+                        <a class="action-btn" th:href="@{/promotions/edit/{id}(id=${p.id})}">Edit</a>
+                        <a class="action-btn delete-btn"
+                           href="#"
+                           th:onclick="'openDeleteModal(' + ${p.id} + ')'">
+                            Delete
+                        </a>
+                        <a class="action-btn" th:href="@{/promotions/countdown/{id}(id=${p.id})}">Countdown</a>
+                    </div>
+                </td>
+            </tr>
+
+            <tr th:if="${#lists.isEmpty(promotions)}" class="empty-row">
+                <td colspan="9">
+                    <div class="empty-text">No promotions found</div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div class="table-footer">
+            <div class="footer-count" th:text="${promotions != null ? promotions.size() + ' records' : '0 records'}">0 records</div>
+            <div class="footer-count">Marketing Module</div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a class="nav-link" th:href="@{/coupons}">Go to Coupons</a>
+    </div>
+
+</div>
+
+<script>
+    setTimeout(() => {
+        const alert = document.getElementById("successAlert");
+        if (alert) {
+            alert.style.display = 'none';
+        }
+    }, 3000);
+</script>
+
+<div id="deleteModal" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.4);
+    justify-content:center;
+    align-items:center;
+    z-index:9999;
+">
+
+    <div style="
+        background:white;
+        padding:25px;
+        border-radius:12px;
+        width:350px;
+        text-align:center;
+        box-shadow:0 10px 30px rgba(0,0,0,0.2);
+    ">
+        <h3 style="color:#b71c1c;">Delete Promotion</h3>
+
+        <p style="margin:15px 0;">
+            Are you sure you want to delete this offer?
+        </p>
+
+        <div style="display:flex; justify-content:center; gap:10px;">
+            <button onclick="closeModal()" style="
+                padding:8px 14px;
+                background:#ddd;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+            ">Cancel</button>
+
+            <button id="confirmDeleteBtn" style="
+                padding:8px 14px;
+                background:#d32f2f;
+                color:white;
+                border:none;
+                border-radius:6px;
+                cursor:pointer;
+            ">Yes, Delete</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let deleteId = null;
+
+    function openDeleteModal(id) {
+        deleteId = id;
+        document.getElementById("deleteModal").style.display = "flex";
+    }
+
+    function closeModal() {
+        document.getElementById("deleteModal").style.display = "none";
+    }
+
+    document.getElementById("confirmDeleteBtn").onclick = function () {
+        if (deleteId !== null) {
+            window.location.href = "/promotions/delete/" + deleteId;
+        }
+    };
+</script>
+</body>
+</html>
+

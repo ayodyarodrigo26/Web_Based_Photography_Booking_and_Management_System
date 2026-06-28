@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Payment Management</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg: #f5efe2;
+            --card: #fffaf2;
+            --ink: #2c1810;
+            --muted: #6e5a4d;
+            --gold: #c5973e;
+            --burgundy: #6b2737;
+            --olive: #6b7f5e;
+            --line: rgba(44, 24, 16, 0.12);
+            --shadow: 0 10px 30px rgba(44, 24, 16, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Lora', Georgia, serif;
+            background: var(--bg);
+            color: var(--ink);
+        }
+
+        .topbar {
+            background: #2c1810;
+            color: #fffaf2;
+            padding: 16px 28px;
+            border-bottom: 3px solid var(--gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .topbar h1 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6rem;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-block;
+            text-decoration: none;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: #fff;
+            color: var(--ink);
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            opacity: 0.95;
+        }
+
+        .btn-dark {
+            background: #2c1810;
+            color: #fffaf2;
+            border-color: #2c1810;
+        }
+
+        .btn-accent {
+            background: var(--burgundy);
+            color: #fffaf2;
+            border-color: var(--burgundy);
+        }
+
+        .page {
+            max-width: 1380px;
+            margin: 0 auto;
+            padding: 30px 20px 50px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 28px;
+        }
+
+        .summary-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+        }
+
+        .summary-card .label {
+            font-size: 0.85rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 10px;
+        }
+
+        .summary-card .value {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: var(--burgundy);
+            font-family: 'Playfair Display', serif;
+        }
+
+        .table-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .table-header {
+            padding: 20px 22px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .table-header h2 {
+            margin: 0;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1200px;
+        }
+
+        thead {
+            background: #f1e7d5;
+        }
+
+        th, td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--line);
+            text-align: left;
+            vertical-align: middle;
+            font-size: 0.95rem;
+        }
+
+        th {
+            color: var(--ink);
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        td {
+            color: #3e2c22;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+        }
+
+        .completed {
+            background: rgba(34, 139, 34, 0.14);
+            color: #1f6b1f;
+        }
+
+        .advance {
+            background: rgba(197, 151, 62, 0.18);
+            color: #8a6512;
+        }
+
+        .amount {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .muted {
+            color: var(--muted);
+        }
+
+        .empty-box {
+            padding: 30px 22px;
+            color: var(--muted);
+        }
+
+        .action-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* ===== HEADER LAYOUT (DESKTOP) ===== */
+        .topbar {
+            position: relative;
+        }
+
+        /* LEFT */
+        .header-left {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+        }
+
+        /* CENTER */
+        .header-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* RIGHT */
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        /* BACK BUTTON */
+        .btn-header {
+            background: #fffaf2;
+            color: #2c1810;
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        /* LOGOUT BUTTON */
+        .btn-header-outline {
+            background: #c0392b;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        @media (max-width: 1100px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, minmax(220px, 1fr));
+            }
+        }
+
+        @media (max-width: 640px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                padding: 14px 16px;
+            }
+
+            .page {
+                padding: 20px 12px 40px;
+            }
+
+            .btn-download {
+                background: #2d6a4f;
+                color: white;
+                padding: 10px 18px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .btn-download:hover {
+                background: #1b4332;
+            }
+
+            .top-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                padding: 16px 30px;
+            }
+
+            /* LEFT */
+            .header-left {
+                font-size: 22px;
+                font-weight: 600;
+                color: white;
+            }
+
+            /* CENTER (FORCED CENTER) */
+            .header-center {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 22px;
+                font-weight: 700;
+                color: white;
+            }
+
+            /* RIGHT */
+            .header-right {
+                display: flex;
+                gap: 12px;
+            }
+
+            /* BUTTONS */
+            .btn-header {
+                background: white;
+                color: #4a2c1d;
+                padding: 8px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .btn-header-outline {
+                border: 1px solid white;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+
+            .records-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .records-header h2 {
+                margin-bottom: 10px;
+            }
+
+            .download-buttons {
+                display: flex;
+                gap: 10px;
+            }
+
+            .btn-download {
+                text-decoration: none;
+                padding: 8px 16px;
+                border-radius: 8px;
+                background: #3b2a1a;
+                color: white;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .btn-download:hover {
+                background: #5a3d26;
+            }
+
+            .btn-download.excel {
+                background: #1d6f42;
+            }
+
+            .btn-download.excel:hover {
+                background: #2e8b57;
+            }
+
+
+            /* HEADER LAYOUT */
+            .header-left {
+                font-size: 20px;
+                font-weight: 600;
+                color: white;
+            }
+
+            .header-center {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 20px;
+                font-weight: 700;
+                color: white;
+            }
+
+            .header-right {
+                display: flex;
+                gap: 10px;
+            }
+
+            .topbar {
+                position: relative;
+            }
+
+            /* BUTTONS */
+            .btn-header {
+                background: white;
+                color: #4a2c1d;
+                padding: 8px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            .btn-header-outline {
+                border: 1px solid white;
+                color: white;
+                padding: 8px 16px;
+                border-radius: 10px;
+                text-decoration: none;
+                font-weight: 600;
+            }
+
+            /* CENTER HEADER BELOW */
+            .center-header {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .download-buttons {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+
+            .btn-download {
+                padding: 8px 16px;
+                border-radius: 8px;
+                background: #3b2a1a;
+                color: white;
+                text-decoration: none;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .btn-download.excel {
+                background: #1d6f42;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+
+    <!-- LEFT -->
+    <div class="header-left">
+        ✦ Payment Management
+    </div>
+
+    <!-- CENTER -->
+    <div class="header-center">
+        All Payment Records
+    </div>
+
+    <!-- RIGHT -->
+    <div class="header-right">
+        <a href="/admin/management-dashboard" class="btn-header">
+            ← Back to Dashboard
+        </a>
+
+    </div>
+</div>
+
+<div class="page">
+
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="label">Total Revenue</div>
+            <div class="value" th:text="${'LKR ' + #numbers.formatDecimal(totalRevenue != null ? totalRevenue : 0, 1, 'COMMA', 2, 'POINT')}">LKR 0.00</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="label">Collected Amount</div>
+            <div class="value" th:text="${'LKR ' + #numbers.formatDecimal(totalCollected != null ? totalCollected : 0, 1, 'COMMA', 2, 'POINT')}">LKR 0.00</div>
+        </div>
+
+        <div class="summary-card">
+            <div class="label">Outstanding Receivables</div>
+            <div class="value" th:text="${'LKR ' + #numbers.formatDecimal(outstandingReceivables != null ? outstandingReceivables : 0, 1, 'COMMA', 2, 'POINT')}">LKR 0.00</div>
+        </div>
+    </div>
+
+    <div class="table-card">
+        <div class="table-header center-header">
+            <h2>All Payment Records</h2>
+
+            <div class="download-buttons">
+                <a href="/payments/export" class="btn-download">⬇ Download CSV</a>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(payments)}" class="empty-box">
+            No payment records available.
+        </div>
+
+        <div class="table-wrap" th:if="${!#lists.isEmpty(payments)}">
+            <table>
+                <thead>
+                <tr>
+                    <th>Payment ID</th>
+                    <th>Customer Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Booking ID</th>
+                    <th>Event Date</th>
+                    <th>Amount Paid</th>
+                    <th>Total Amount</th>
+                    <th>Remaining Balance</th>
+                    <th>Status</th>
+                    <th>Method</th>
+                    <th>Payment Time</th>
+                    <th>Receipt</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${payments}">
+
+                    <td th:text="${item.payment.id}">1</td>
+                    <td th:text="${item.payment.fullName}">Customer Name</td>
+                    <td th:text="${item.payment.email}">email@example.com</td>
+                    <td th:text="${item.payment.phoneNumber != null ? item.payment.phoneNumber : '-'}"></td>
+                    <td th:text="${item.payment.bookingId != null ? item.payment.bookingId : '-'}"></td>
+
+                    <!--  THIS IS YOUR FIX -->
+                    <td th:text="${item.eventDate}">2026-04-01</td>
+
+                    <td class="amount"
+                        th:text="${'LKR ' + #numbers.formatDecimal(item.payment.amountPaid != null ? item.payment.amountPaid : 0, 1, 'COMMA', 2, 'POINT')}">
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'LKR ' + #numbers.formatDecimal(item.payment.totalAmount != null ? item.payment.totalAmount : 0, 1, 'COMMA', 2, 'POINT')}">
+                    </td>
+
+                    <td class="amount"
+                        th:text="${'LKR ' + #numbers.formatDecimal(item.payment.remainingBalance != null ? item.payment.remainingBalance : 0, 1, 'COMMA', 2, 'POINT')}">
+                    </td>
+
+                    <td>
+        <span th:if="${item.payment.paymentStatus != null and item.payment.paymentStatus.name() == 'COMPLETED'}"
+              class="status-badge completed"
+              th:text="${item.payment.paymentStatus}">
+        </span>
+
+                        <span th:if="${item.payment.paymentStatus != null and item.payment.paymentStatus.name() == 'ADVANCE_PAID'}"
+                              class="status-badge advance"
+                              th:text="${item.payment.paymentStatus}">
+        </span>
+
+                        <span th:if="${item.payment.paymentStatus == null}" class="muted">-</span>
+                    </td>
+
+                    <td th:text="${item.payment.paymentMethod != null ? item.payment.paymentMethod : '-'}"></td>
+                    <td th:text="${item.payment.paymentDate != null ? item.payment.paymentDate : '-'}"></td>
+
+                    <td>
+                        <div class="action-links">
+                            <a class="btn btn-accent"
+                               th:href="@{/payments/receipt/{id}(id=${item.payment.id})}">
+                                Receipt PDF
+                            </a>
+                        </div>
+                    </td>
+
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
