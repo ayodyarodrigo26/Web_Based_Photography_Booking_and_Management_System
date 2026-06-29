@@ -1,6 +1,14 @@
 <h1 align="center">📸 Web-Based Photography Booking and Management System</h1>
 
+
+
 > A comprehensive web-based platform developed to streamline photography service booking, customer management, payment processing, marketing campaigns, and photographer scheduling through an integrated management system.
+
+<p align="center">
+
+<a href="https://github.com/ayodyarodrigo26/Web_Based_Photography_Booking_and_Management_System">Repository</a> • <a href="#-installation">Installation</a> • <a href="#-license">License</a>
+
+</p>
 
 <p align="center">
   <img src="screenshots/img_12.png" width="100%">
@@ -16,7 +24,24 @@
 ![Status](https://img.shields.io/badge/Project-Completed-success)
 
 ---
+## 📑 Table of Contents
 
+* [📖 Project Overview](#-project-overview)
+* [✨ Key Features](#-key-features)
+* [🏗️ System Architecture](#-system-architecture)
+* [🏛️ Modules](#️-modules)
+* [🖼️ System Screenshots](#️-system-screenshots)
+* [⭐ Special Business Features](#-special-business-features)
+* [🛠️ Technology Stack](#️-technology-stack)
+* [📂 Project Structure](#-project-structure)
+* [🗄️ Database Tables](#️-database-tables)
+* [🚀 Installation](#-installation)
+* [👥 Team Members](#-team-members)
+* [🎓 Academic Information](#-academic-information)
+* [🏆 Project Highlights](#-project-highlights)
+* [📜 License](#-license)
+
+---
 # 📖 Project Overview
 
 The **Web-Based Photography Booking and Management System** is a full-stack enterprise web application developed to digitalize photography service management.
@@ -345,67 +370,53 @@ src
 
 ---
 
-# 📸 System Screenshots
-
-Include screenshots such as:
-
-* Home Page
-* Customer Dashboard
-* Package Management
-* Shopping Cart
-* Booking Page
-* Photographer Assignment
-* Loyalty Discount
-* Promotion Management
-* Coupon Management
-* Payment Page
-* Receipt Generation
-* Admin Dashboard
-* Feedback Module
-
----
-
 # 🚀 Installation
 
-Clone the repository
+### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/Photography-Booking-Management-System.git
+git clone https://github.com/ayodyarodrigo26/Web_Based_Photography_Booking_and_Management_System.git
 ```
 
-Open the project
+### Navigate to the project
 
 ```bash
-cd Photography-Booking-Management-System
+cd Web_Based_Photography_Booking_and_Management_System
 ```
 
-Configure the database in:
+### Configure the database
 
-```
-application.properties
+Update the database configuration in:
+
+```text
+src/main/resources/application.properties
 ```
 
-Run the project
+### Build and run
 
 ```bash
+mvn clean install
 mvn spring-boot:run
 ```
 
-Open
+### Open in your browser
 
-```
+```text
 http://localhost:8080
 ```
+
 
 ---
 
 # 👥 Team Members
 
-1. IT24103653 - Rodrigo H.A.D.A (Me)
-2. IT24100636 - Fernando T.M.I.U
-3. IT24100151 - Ruth R.W.N
-4. IT24101144 - Jayaweera S.R.S.H
-5. IT24101905 - Chamya J.A
+| Student ID        | Name               |
+|-------------------|--------------------|
+| IT24103653  (Me)  | Rodrigo H.A.D.A    |
+| IT24100636        | Fernando T.M.I.U   |
+| IT24100151        | Ruth R.W.N         |
+| IT24101144        | Jayaweera S.R.S.H  |
+| IT24101905        | Chamya J.A         |
 
 ---
 
@@ -434,6 +445,23 @@ http://localhost:8080
 * ✅ Hibernate/JPA Integration
 * ✅ MySQL Database
 * ✅ Real-world Business Workflow
+
+---
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+See the [LICENSE](LICENSE) file for more information.
+
+---
+
+<p align="center">
+
+Developed using Java, Spring Boot, Thymeleaf, and MySQL.
+
+© 2026 Ayodya Rodrigo & Team
+
+</p>
 
 
 
